@@ -1,0 +1,1071 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0B0B0C">
+<title>Tapa Studio · Academia Vexler</title>
+<link rel="icon" type="image/png" sizes="64x64" href="/assets/icon/tapa-studio-64.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/icon/tapa-studio-32.png">
+<link rel="apple-touch-icon" href="/assets/icon/tapa-studio-256.png">
+<style>
+/* ===========================================================================
+   Tapa Studio v4 · cartel chicha (Academia Vexler)
+   Negro de imprenta + una tinta flúor por modo. La tinta del modo vive en
+   --ink y recolorea toda la interfaz al cambiar de modo.
+   ========================================================================= */
+@font-face{font-family:'Anton';src:url('/assets/fonts/ttf/Anton-Regular.ttf') format('truetype');font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:'JetBrains Mono';src:url('/assets/fonts/JetBrainsMono-Variable.woff2') format('woff2');font-weight:400 600;font-style:normal;font-display:swap}
+
+:root{
+  --bg:#0B0B0C; --bg-2:#111113; --panel:#141416; --panel-2:#1B1B1E; --field:#1F1F23; --field-2:#26262B;
+  --line:rgba(244,241,234,.09); --line-2:rgba(244,241,234,.16); --line-3:rgba(244,241,234,.30);
+  --paper:#F4F1EA; --paper-2:#C9C5BC; --dim:#8F8B83;
+  --pink:#FF2E88; --yellow:#FFE600; --green:#22E07A; --orange:#FF7A00; --bad:#FF4F45;
+  --on-ink:#0B0B0C;
+  --ink:var(--pink);
+  --f-poster:'Anton','Bebas Neue',Impact,sans-serif;
+  --f-ui:'Segoe UI Variable Text','Segoe UI',system-ui,-apple-system,Roboto,'Helvetica Neue',Arial,sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,'Cascadia Mono',Consolas,monospace;
+  --top:56px; --rail:88px; --side:388px; --dock:112px; --r:4px;
+  --ease:cubic-bezier(.16,1,.3,1); --ease-2:cubic-bezier(.4,0,.2,1);
+}
+body[data-mode="editar"]{--ink:var(--yellow)}
+body[data-mode="herramientas"]{--ink:var(--green)}
+body[data-mode="biblioteca"]{--ink:var(--orange)}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%}
+html{background:var(--bg)}
+body{background:var(--bg);color:var(--paper);font-family:var(--f-ui);font-size:14px;line-height:1.45;
+  -webkit-font-smoothing:antialiased;overflow:hidden}
+h1,h2,h3,h4,p{margin:0;font-weight:inherit}
+a{color:inherit}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0}
+button:disabled{cursor:not-allowed}
+[hidden]{display:none!important}
+::selection{background:var(--ink);color:var(--on-ink)}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+input,textarea,select{caret-color:var(--ink)}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#2A2A2F;border:3px solid var(--bg);border-radius:6px}
+::-webkit-scrollbar-thumb:hover{background:#3A3A40}
+*{scrollbar-width:thin;scrollbar-color:#2A2A2F transparent}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+.i{width:18px;height:18px;flex:0 0 auto;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;letter-spacing:0}
+.poster{font-family:var(--f-poster);font-weight:400;text-transform:uppercase;letter-spacing:.01em;line-height:.92}
+kbd{font-family:var(--f-mono);font-size:11px;border:1px solid var(--line-2);border-bottom-width:2px;padding:0 5px;
+  border-radius:3px;color:var(--paper-2);background:var(--panel-2);white-space:nowrap;line-height:18px;display:inline-block}
+
+/* ------------------------------------------------------------------ shell */
+.app{display:grid;grid-template-columns:var(--rail) minmax(0,1fr) var(--side);
+  grid-template-rows:var(--top) minmax(0,1fr);height:100vh;height:100dvh}
+
+/* barra superior: marca, cola, consumo, estado; abajo la regla de cuatro tintas */
+.top{grid-column:1/-1;grid-row:1;position:relative;display:flex;align-items:center;gap:14px;
+  padding:0 16px 0 0;background:var(--bg);z-index:30}
+.top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;
+  background:linear-gradient(90deg,var(--pink) 0 25%,var(--yellow) 25% 50%,var(--green) 50% 75%,var(--orange) 75% 100%)}
+.brand{display:flex;align-items:center;gap:12px;height:100%;padding:0 18px 3px;min-width:var(--rail)}
+.brand-mark{width:28px;height:28px;flex:0 0 auto}
+.wordmark{font-family:var(--f-poster);font-size:27px;line-height:1;letter-spacing:.015em;text-transform:uppercase;white-space:nowrap}
+.wordmark span{color:var(--ink);transition:color .35s var(--ease-2)}
+.brand-sub{font-size:12px;color:var(--dim);white-space:nowrap;padding-left:12px;border-left:1px solid var(--line-2);line-height:1.2}
+.top-sep{flex:1}
+.top-right{display:flex;align-items:center;gap:8px;padding-bottom:3px}
+.pill{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 12px;border-radius:999px;
+  border:1px solid var(--line-2);background:var(--bg-2);font-size:13px;color:var(--paper-2);white-space:nowrap;
+  transition:border-color .18s,color .18s,background-color .18s}
+button.pill:hover{border-color:var(--line-3);color:var(--paper)}
+.pill .dot{width:8px;height:8px;border-radius:50%;background:var(--green)}
+.pill .dot.bad{background:var(--bad)}
+.pill.is-live{background:var(--ink);border-color:var(--ink);color:var(--on-ink);font-weight:600}
+.pill.is-live .count{animation:pulse 1.6s var(--ease-2) infinite}
+@keyframes pulse{50%{opacity:.45}}
+.pill .count{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-weight:600}
+.usage .bar{width:64px;height:5px;background:#2A2A2F;border-radius:3px;overflow:hidden}
+.usage .bar i{display:block;height:100%;width:0;background:var(--paper-2);transition:width .6s var(--ease)}
+.usage .val{font-family:var(--f-mono);font-size:12px;font-variant-numeric:tabular-nums}
+.iconbtn{width:34px;height:34px;display:grid;place-items:center;border-radius:999px;border:1px solid var(--line-2);
+  background:var(--bg-2);color:var(--paper-2);transition:border-color .18s,color .18s}
+.iconbtn:hover{border-color:var(--line-3);color:var(--paper)}
+
+/* riel de modos: el activo es un bloque lleno de su tinta */
+.rail{grid-column:1;grid-row:2;position:relative;display:flex;flex-direction:column;background:var(--bg);
+  border-right:1px solid var(--line);padding:10px 0 12px;z-index:20}
+.rail-ind{position:absolute;left:8px;right:8px;top:0;height:76px;border-radius:var(--r);background:var(--ink);
+  transform:translateY(var(--y,10px));transition:transform .42s var(--ease),background-color .35s var(--ease-2);pointer-events:none}
+.rail-item{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  height:76px;margin:0 8px;border-radius:var(--r);color:var(--paper-2);transition:color .25s var(--ease-2)}
+.rail-item:hover{color:var(--paper)}
+.rail-item .i{width:22px;height:22px}
+.rail-item .txt{font-size:12px;font-weight:600;letter-spacing:.01em}
+.rail-item .k{position:absolute;top:6px;right:7px;font-family:var(--f-mono);font-size:10px;color:var(--dim)}
+.rail-item.is-active{color:var(--on-ink)}
+.rail-item.is-active .k{color:rgba(11,11,12,.6)}
+.rail-sep{height:1px;background:var(--line);margin:10px 16px}
+.rail-item.upload{height:64px}
+.rail-foot{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:4px}
+.rail-foot .lnk{display:flex;flex-direction:column;align-items:center;gap:3px;width:72px;padding:8px 0;border-radius:var(--r);
+  font-size:11px;color:var(--dim);text-decoration:none;transition:color .18s,background-color .18s}
+.rail-foot .lnk:hover{color:var(--paper);background:var(--panel)}
+.rail-foot .lnk .i{width:17px;height:17px}
+.rail-foot .ver{font-family:var(--f-mono);font-size:9.5px;color:#55524D;margin-top:6px;letter-spacing:.06em}
+
+/* --------------------------------------------------------------- botones */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:36px;padding:0 13px;border-radius:var(--r);
+  border:1px solid var(--line-2);background:var(--panel);color:var(--paper);font-size:13px;font-weight:600;white-space:nowrap;
+  text-decoration:none;transition:border-color .16s,background-color .16s,color .16s,filter .16s}
+.btn:hover{border-color:var(--line-3);background:var(--panel-2)}
+.btn:active{transform:translateY(1px)}
+.btn:disabled,.btn[aria-disabled="true"]{opacity:.4;pointer-events:none}
+.btn .i{width:16px;height:16px}
+.btn.ink{background:var(--ink);border-color:var(--ink);color:var(--on-ink)}
+.btn.ink:hover{filter:brightness(1.1)}
+.btn.ghost{background:transparent}
+.btn.danger:hover{border-color:var(--bad);color:var(--bad);background:transparent}
+.btn.sq{width:36px;padding:0}
+.btn.is-on{background:var(--paper);border-color:var(--paper);color:var(--on-ink)}
+.btn.sm{height:30px;padding:0 10px;font-size:12px}
+
+/* ------------------------------------------------------------- mesa */
+.work{grid-column:2;grid-row:2;min-width:0;min-height:0;position:relative;display:flex;flex-direction:column;background:var(--bg)}
+.desk{flex:1;min-height:0;display:flex;flex-direction:column}
+.stage{position:relative;flex:1;min-height:0;overflow:hidden;background:var(--bg)}
+.bands{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;transition:opacity .6s var(--ease-2)}
+.stage.is-empty .bands{opacity:1}
+.stage-area{position:absolute;inset:0;padding:44px 28px 22px;display:grid;place-items:center;container-type:size}
+.frame{position:relative;--ar:1.414;aspect-ratio:var(--ar);width:min(100cqw,calc(100cqh * var(--ar)));background:var(--panel);
+  box-shadow:0 34px 80px -34px #000,0 0 0 1px rgba(244,241,234,.06)}
+.stage.is-empty .frame{visibility:hidden}
+.frame.is-checker{background:repeating-conic-gradient(#202024 0 25%,#16161A 0 50%) 0 0/20px 20px}
+.frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
+.frame .piece{cursor:zoom-in}
+.frame .cmp{clip-path:inset(0 calc(100% - var(--cx,50%)) 0 0)}
+.curtain{position:absolute;inset:0;z-index:3}
+.curtain input{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;cursor:ew-resize}
+.curtain .line{position:absolute;top:0;bottom:0;left:var(--cx,50%);width:2px;margin-left:-1px;background:var(--ink);pointer-events:none}
+.curtain .knob{position:absolute;top:50%;left:var(--cx,50%);width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50%;
+  background:var(--ink);color:var(--on-ink);display:grid;place-items:center;pointer-events:none;box-shadow:0 6px 18px -6px #000}
+.curtain .tag{position:absolute;top:10px;padding:3px 9px;border-radius:3px;font-size:12px;font-weight:700;pointer-events:none;
+  background:rgba(11,11,12,.82);color:var(--paper)}
+.curtain .tag.a{left:10px}.curtain .tag.b{right:10px;background:var(--ink);color:var(--on-ink)}
+.curtain input:focus-visible~.knob{outline:2px solid var(--paper);outline-offset:3px}
+.wipe{position:absolute;inset:0;z-index:4;background:var(--ink);transform:scaleY(0);transform-origin:50% 100%;pointer-events:none}
+
+.empty{position:absolute;inset:0;z-index:2;display:grid;place-items:center;padding:24px;pointer-events:none}
+.stage:not(.is-empty) .empty{display:none}
+.empty-card{pointer-events:auto;background:var(--bg);padding:26px 30px 26px;width:min(460px,100%);border-radius:var(--r);
+  box-shadow:0 30px 70px -24px rgba(0,0,0,.85)}
+.empty-card h2{font-family:var(--f-poster);font-size:68px;line-height:.88;text-transform:uppercase;color:var(--ink);
+  font-weight:400;transition:color .35s var(--ease-2)}
+.empty-card p{color:var(--paper-2);margin-top:14px;max-width:38ch;font-size:14.5px}
+.empty-clock{font-family:var(--f-mono);font-size:15px;color:var(--paper);margin-top:12px;font-variant-numeric:tabular-nums}
+.empty-acts{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap}
+
+.hud{position:absolute;top:12px;left:14px;right:14px;z-index:3;display:flex;gap:6px;align-items:center;pointer-events:none}
+.hud span{font-family:var(--f-mono);font-size:12px;color:var(--paper-2);background:rgba(11,11,12,.78);padding:3px 8px;border-radius:3px}
+.hud .busy{margin-left:auto;background:var(--ink);color:var(--on-ink);font-weight:600}
+.stage.is-empty .hud span:not(.busy){display:none}
+.sweep{position:absolute;left:0;right:0;top:0;height:3px;z-index:5;overflow:hidden;pointer-events:none}
+.sweep i{position:absolute;top:0;bottom:0;width:34%;background:var(--ink);animation:sweep 1.3s var(--ease-2) infinite}
+@keyframes sweep{from{transform:translateX(-100%)}to{transform:translateX(300%)}}
+
+/* barra de la pieza */
+.piece-bar{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:58px;
+  padding:9px 16px;border-top:1px solid var(--line);background:var(--bg)}
+.piece-meta{min-width:0;flex:1 1 0}
+.piece-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.piece-sub{display:flex;align-items:center;gap:8px;margin-top:2px;font-family:var(--f-mono);font-size:11.5px;color:var(--dim);
+  white-space:nowrap;overflow:hidden}
+.kd{display:inline-block;width:9px;height:9px;border-radius:2px;background:var(--kc,var(--paper-2));flex:0 0 auto}
+[data-k="gen"]{--kc:var(--pink)}[data-k="edit"]{--kc:var(--yellow)}[data-k="tool"],[data-k="text"]{--kc:var(--green)}[data-k="ref"]{--kc:#A7A39B}
+.piece-acts{display:flex;gap:6px;flex:0 0 auto;overflow-x:auto;scrollbar-width:none;max-width:100%}
+.piece-acts::-webkit-scrollbar{display:none}
+.piece-bar.is-empty .piece-acts .btn:not([data-act="upload"]){display:none}
+
+/* dock: tandas en vuelo y recientes */
+.dock{flex:0 0 auto;display:flex;height:var(--dock);border-top:1px solid var(--line);background:var(--bg-2);overflow-x:auto;overflow-y:hidden}
+.dock-sec{display:flex;align-items:center;gap:10px;padding:0 14px;flex:0 0 auto}
+.dock-sec+.dock-sec{border-left:1px solid var(--line)}
+.dock-label{display:flex;flex-direction:column;gap:3px;width:92px;flex:0 0 auto}
+.dock-label b{font-family:var(--f-poster);font-size:21px;line-height:.95;text-transform:uppercase;font-weight:400}
+.dock-label span{font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
+.slots,.recent{display:flex;gap:6px}
+.slot,.thumb{position:relative;width:84px;height:84px;flex:0 0 auto;border-radius:var(--r);overflow:hidden;background:var(--panel)}
+.slot{--k:var(--pink)}
+.slot[data-kind="edit"]{--k:var(--yellow)}
+.slot img,.thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.slot .lbl{position:absolute;left:0;right:0;bottom:0;height:84px;display:flex;flex-direction:column;justify-content:space-between;
+  padding:6px 8px 7px;color:var(--paper);text-align:left}
+.slot .lbl b{font-family:var(--f-poster);font-size:30px;line-height:1;font-weight:400}
+.slot .lbl span{font-family:var(--f-mono);font-size:11px;font-variant-numeric:tabular-nums}
+.slot .fill{position:absolute;left:0;right:0;bottom:0;height:calc(var(--p,0) * 100%);background:var(--k);overflow:hidden;
+  transition:height 1.1s linear}
+.slot .fill .lbl{color:var(--on-ink)}
+.slot.is-done .tag,.slot.is-fail .tag{position:absolute;top:4px;left:4px;min-width:20px;height:20px;padding:0 5px;border-radius:3px;
+  background:var(--k);color:var(--on-ink);font-family:var(--f-poster);font-size:14px;display:grid;place-items:center;line-height:1}
+.slot.is-fail{background:rgba(255,79,69,.13)}
+.slot.is-fail .lbl{color:var(--bad)}
+/* demorada: pasó el tiempo normal; se marca en rojo y aparece la x para dejar de esperarla */
+.slot.is-late{--k:var(--bad);outline:2px solid var(--bad);outline-offset:-2px}
+.slot.is-late .fill{animation:pulse 1.6s var(--ease-2) infinite}
+.slot .drop{position:absolute;top:4px;right:4px;z-index:2;width:24px;height:24px;border-radius:3px;display:grid;place-items:center;
+  background:rgba(11,11,12,.88);color:var(--paper)}
+.slot .drop:hover{background:var(--paper);color:var(--on-ink)}
+.slot .send{position:absolute;right:4px;bottom:4px;width:26px;height:26px;border-radius:3px;display:grid;place-items:center;
+  background:rgba(11,11,12,.85);color:var(--paper);opacity:0;transition:opacity .16s}
+.slot:hover .send,.slot:focus-within .send{opacity:1}
+.slot .send:hover{background:var(--yellow);color:var(--on-ink)}
+.thumb img{opacity:.62;transition:opacity .2s,transform .35s var(--ease)}
+.thumb:hover img{opacity:1;transform:scale(1.05)}
+.thumb .kd{position:absolute;left:5px;bottom:5px;box-shadow:0 0 0 2px rgba(11,11,12,.7)}
+.slot.is-on,.thumb.is-on{outline:2px solid var(--paper);outline-offset:-2px}
+.thumb.is-on img{opacity:1}
+.dock-none{font-size:13px;color:var(--dim);white-space:nowrap}
+
+/* --------------------------------------------------------- compositor */
+.side{grid-column:3;grid-row:2;min-height:0;display:flex;flex-direction:column;background:var(--panel);border-left:1px solid var(--line);z-index:10}
+.panels{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+.panel{padding-bottom:20px}
+.ph{background:var(--ink);color:var(--on-ink);padding:16px 18px 15px;transition:background-color .35s var(--ease-2)}
+.ph h2{font-family:var(--f-poster);font-size:46px;line-height:.88;text-transform:uppercase;font-weight:400}
+.ph p{font-size:13px;font-weight:500;margin-top:7px;max-width:40ch}
+.field{padding:18px 18px 0}
+.field-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;min-height:30px}
+.lbl{font-size:13px;font-weight:600;color:var(--paper)}
+.lbl small{font-weight:500;color:var(--dim);margin-left:6px;font-size:12px}
+.hint{font-size:12.5px;color:var(--dim);line-height:1.5;margin-top:8px}
+.hint b{color:var(--paper-2);font-weight:600}
+.counter{font-family:var(--f-mono);font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
+.counter b{color:var(--paper);font-weight:600}
+
+textarea,input[type=text],input[type=number],select{width:100%;background:var(--field);color:var(--paper);border:1px solid var(--line-2);
+  border-radius:var(--r);padding:10px 12px;font:inherit;font-size:13.5px;transition:border-color .16s,background-color .16s,box-shadow .16s}
+textarea{resize:vertical;line-height:1.55;min-height:96px;display:block}
+textarea.prompt{min-height:168px}
+textarea::placeholder,input::placeholder{color:#7D7972}
+select{appearance:none;padding-right:30px;cursor:pointer;background-repeat:no-repeat;background-position:right 11px center;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23C9C5BC' stroke-width='1.4'/%3E%3C/svg%3E")}
+textarea:hover,input[type=text]:hover,input[type=number]:hover,select:hover{border-color:var(--line-3)}
+textarea:focus,input[type=text]:focus,input[type=number]:focus,select:focus{outline:none;border-color:var(--ink);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--ink) 22%,transparent)}
+input[type=range]{width:100%;accent-color:var(--ink);margin:4px 0 0}
+input[type=checkbox]{accent-color:var(--ink);width:16px;height:16px;margin:0}
+input[type=color]{width:46px;height:40px;flex:0 0 auto;padding:3px;background:var(--field);border:1px solid var(--line-2);border-radius:var(--r);cursor:pointer}
+.row{display:flex;gap:8px;align-items:center}
+.row>*{min-width:0}
+.stack{display:flex;flex-direction:column;gap:10px}
+
+.seg{display:flex;gap:3px;padding:3px;border-radius:var(--r);background:var(--field);border:1px solid var(--line-2)}
+.seg button{flex:1;height:34px;border-radius:3px;display:flex;align-items:center;justify-content:center;gap:6px;
+  font-size:13px;font-weight:600;color:var(--paper-2);transition:background-color .16s,color .16s}
+.seg button:hover{color:var(--paper);background:var(--field-2)}
+.seg button.is-on{background:var(--ink);color:var(--on-ink)}
+.seg button .u{font-family:var(--f-mono);font-size:11px;font-weight:500;opacity:.7}
+
+.fmts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.fmt{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:7px;min-height:84px;padding:10px 4px 8px;
+  border-radius:var(--r);border:1px solid var(--line-2);background:var(--field);color:var(--paper-2);transition:background-color .16s,border-color .16s,color .16s}
+.fmt:hover{border-color:var(--line-3);color:var(--paper)}
+.fmt .shape{display:block;width:calc(var(--w) * 1px);height:calc(var(--h) * 1px);border:1.5px solid currentColor;border-radius:2px}
+.fmt b{font-size:12px;font-weight:600;line-height:1.15;text-align:center}
+.fmt small{font-family:var(--f-mono);font-size:10px;color:var(--dim);line-height:1}
+.fmt.is-on{background:var(--ink);border-color:var(--ink);color:var(--on-ink)}
+.fmt.is-on small{color:rgba(11,11,12,.72)}
+
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.chip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 11px;border-radius:999px;border:1px solid var(--line-2);
+  font-size:12.5px;font-weight:500;color:var(--paper-2);background:transparent;white-space:nowrap;transition:border-color .16s,color .16s,background-color .16s}
+.chip:hover{border-color:var(--line-3);color:var(--paper);background:var(--field)}
+.chip:disabled{opacity:.4}
+.chip .sw{width:13px;height:13px;border-radius:3px;border:1px solid rgba(255,255,255,.28)}
+.chip .i{width:14px;height:14px}
+label.chip{cursor:pointer}
+
+details.more{margin:18px 18px 0;border:1px solid var(--line-2);border-radius:var(--r);background:var(--bg-2)}
+details.more>summary{list-style:none;display:flex;align-items:center;gap:10px;padding:11px 12px;cursor:pointer;border-radius:var(--r)}
+details.more>summary::-webkit-details-marker{display:none}
+details.more>summary:hover{background:var(--panel-2)}
+details.more>summary .lbl{flex:0 0 auto}
+details.more>summary .sum{flex:1;min-width:0;font-size:12.5px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
+details.more>summary .i{width:15px;height:15px;color:var(--dim);transition:transform .25s var(--ease)}
+details.more[open]>summary .i{transform:rotate(180deg)}
+details.more .more-body{padding:4px 12px 14px;display:flex;flex-direction:column;gap:14px}
+
+.models{display:flex;flex-direction:column;gap:6px}
+.model{display:grid;grid-template-columns:16px minmax(0,1fr) auto;gap:10px;align-items:center;text-align:left;padding:10px 11px;
+  border-radius:var(--r);border:1px solid var(--line-2);background:var(--field);transition:border-color .16s}
+.model:hover{border-color:var(--line-3)}
+.model .rd{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--line-3);transition:border-width .16s,border-color .16s}
+.model strong{display:block;font-size:13px;font-weight:600}
+.model em{display:block;font-style:normal;font-size:12px;color:var(--dim);margin-top:1px}
+.model .tier{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--field-2);color:var(--paper-2)}
+.model .tier[data-t="gratis"]{background:var(--green);color:var(--on-ink)}
+.model.is-on{border-color:var(--ink)}
+.model.is-on .rd{border:5px solid var(--ink)}
+
+.save-row{display:flex;gap:6px;margin-top:8px}
+
+/* referencias */
+.refs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;border-radius:var(--r);outline:2px dashed transparent;outline-offset:5px;transition:outline-color .18s}
+.refs.is-over{outline-color:var(--ink)}
+.ref{position:relative;aspect-ratio:1;border-radius:var(--r);overflow:hidden;background:var(--field);cursor:grab}
+.ref img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.ref .no{position:absolute;top:4px;left:4px;min-width:21px;height:21px;padding:0 5px;border-radius:3px;display:grid;place-items:center;
+  background:rgba(11,11,12,.86);font-family:var(--f-poster);font-size:14px;line-height:1}
+.ref.is-base{outline:2px solid var(--yellow);outline-offset:-2px}
+.ref.is-base .no{background:var(--yellow);color:var(--on-ink)}
+.ref .x,.ref .mk{position:absolute;width:26px;height:26px;display:grid;place-items:center;border-radius:3px;background:rgba(11,11,12,.86);
+  color:var(--paper);opacity:0;transition:opacity .16s,background-color .16s}
+.ref .x{top:3px;right:3px}.ref .mk{bottom:3px;right:3px}
+.ref .x .i,.ref .mk .i{width:13px;height:13px}
+.ref:hover .x,.ref:hover .mk,.ref:focus-within .x,.ref:focus-within .mk{opacity:1}
+.ref .x:hover{background:var(--bad);color:var(--on-ink)}
+.ref .mk:hover{background:var(--yellow);color:var(--on-ink)}
+.ref.is-drag{opacity:.3}
+.ref.is-target{outline:2px solid var(--paper);outline-offset:-2px}
+.ref-add{aspect-ratio:1;border-radius:var(--r);border:1.5px dashed var(--line-3);display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:5px;color:var(--paper-2);font-size:12px;font-weight:600;transition:border-color .16s,color .16s}
+.ref-add:hover{border-color:var(--ink);color:var(--paper)}
+
+/* herramientas */
+.cur{display:flex;align-items:center;gap:12px;padding:10px;border-radius:var(--r);background:var(--field);border:1px solid var(--line-2)}
+.cur img{width:56px;height:56px;object-fit:cover;border-radius:3px;background:var(--bg);flex:0 0 auto}
+.cur .t{min-width:0;flex:1}
+.cur b{display:block;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cur span{font-family:var(--f-mono);font-size:11.5px;color:var(--dim)}
+.cur.is-none{border-style:dashed;justify-content:space-between}
+.cur.is-none p{font-size:13px;color:var(--paper-2)}
+.tools{margin-top:18px;border-top:1px solid var(--line)}
+.tool{border-bottom:1px solid var(--line)}
+.tool-head{width:100%;display:grid;grid-template-columns:22px minmax(0,1fr) 16px;gap:12px;align-items:center;padding:13px 18px;text-align:left;transition:background-color .16s}
+.tool-head:hover{background:var(--panel-2)}
+.tool-head .ic{color:var(--paper-2);transition:color .2s}
+.tool-head strong{display:block;font-size:14px;font-weight:600}
+.tool-head em{display:block;font-style:normal;font-size:12px;color:var(--dim);margin-top:1px}
+.tool-head .chev{width:15px;height:15px;color:var(--dim);transition:transform .25s var(--ease)}
+.tool.is-open{background:var(--bg-2)}
+.tool.is-open .tool-head .ic{color:var(--ink)}
+.tool.is-open .chev{transform:rotate(180deg)}
+.tool-body{padding:2px 18px 18px;display:flex;flex-direction:column;gap:12px}
+.tool:not(.is-open) .tool-body{display:none}
+.range-row{display:flex;justify-content:space-between;align-items:baseline}
+.range-row output{font-family:var(--f-mono);font-size:12px;color:var(--paper)}
+.files{display:flex;flex-direction:column}
+.file{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.file span{font-family:var(--f-mono);font-size:12px;color:var(--paper-2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.swatches{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.swatch{display:flex;flex-direction:column;border-radius:var(--r);overflow:hidden;border:1px solid var(--line-2);text-align:left;background:var(--field)}
+.swatch i{display:block;height:40px}
+.swatch span{font-family:var(--f-mono);font-size:11px;padding:5px 6px;color:var(--paper-2)}
+
+/* ejecutar */
+.runbar{flex:0 0 auto;padding:12px 18px 14px;border-top:1px solid var(--line);background:var(--panel)}
+.run{width:100%;height:56px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 16px 0 18px;border-radius:var(--r);
+  background:var(--ink);color:var(--on-ink);transition:filter .16s,background-color .35s var(--ease-2),transform .12s}
+.run:hover{filter:brightness(1.1)}
+.run:active{transform:translateY(1px)}
+.run:disabled{background:var(--field);color:#77736C;filter:none;transform:none}
+.run .go{font-family:var(--f-poster);font-size:25px;line-height:1;text-transform:uppercase;letter-spacing:.015em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.run kbd{background:rgba(11,11,12,.12);border-color:rgba(11,11,12,.28);color:inherit}
+.run:disabled kbd{opacity:.5}
+.run-note{display:flex;justify-content:space-between;gap:10px;margin-top:8px;font-size:12.5px;color:var(--dim);min-height:18px}
+.run-note span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.run-note b{color:var(--paper-2);font-weight:600}
+.run-err{display:flex;gap:8px;align-items:flex-start;margin-top:10px;padding:9px 10px;border-radius:var(--r);background:rgba(255,79,69,.12);
+  color:#FF8A82;font-size:12.5px;line-height:1.45;word-break:break-word}
+.run-err .i{width:15px;height:15px;margin-top:1px}
+.run-err button{margin-left:auto;color:var(--paper-2)}
+
+/* ficha (biblioteca y visor) */
+.ficha-prev{margin:18px 18px 0;height:250px;border-radius:var(--r);background:var(--bg);display:grid;place-items:center;overflow:hidden;cursor:zoom-in}
+.ficha-prev img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+.ficha-prev.is-checker{background:repeating-conic-gradient(#202024 0 25%,#16161A 0 50%) 0 0/16px 16px}
+.ficha-name{font-size:16px;font-weight:600;line-height:1.3;word-break:break-word;display:flex;gap:9px;align-items:baseline}
+.kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 14px;margin:12px 0 0}
+.kv dt{font-size:12.5px;color:var(--dim)}
+.kv dd{margin:0;font-family:var(--f-mono);font-size:12px;color:var(--paper-2);word-break:break-word}
+.promptbox{background:var(--field);border:1px solid var(--line-2);border-radius:var(--r);padding:10px 12px;font-size:12.5px;line-height:1.55;
+  color:var(--paper-2);max-height:210px;overflow:auto;white-space:pre-wrap;word-break:break-word}
+.acts-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.acts-grid .btn{justify-content:flex-start}
+.blank{padding:34px 18px;color:var(--dim);font-size:13.5px;line-height:1.55}
+.blank b{display:block;font-family:var(--f-poster);font-weight:400;font-size:30px;line-height:.95;text-transform:uppercase;color:var(--paper);margin-bottom:8px}
+
+/* ---------------------------------------------------------- biblioteca */
+.library{flex:1;min-height:0;display:flex;flex-direction:column}
+.lib-head{flex:0 0 auto;display:flex;align-items:center;gap:14px 18px;flex-wrap:wrap;padding:16px 22px 14px;border-bottom:1px solid var(--line)}
+.lib-head h2{font-family:var(--f-poster);font-size:44px;line-height:.88;text-transform:uppercase;font-weight:400;color:var(--ink)}
+.lib-head .tot{font-family:var(--f-mono);font-size:12px;color:var(--dim);align-self:flex-end;padding-bottom:3px}
+.search{flex:1 1 260px;max-width:460px;margin-left:auto;display:flex;align-items:center;gap:8px;height:42px;padding:0 12px;border-radius:var(--r);
+  background:var(--field);border:1px solid var(--line-2);transition:border-color .16s,box-shadow .16s}
+.search:focus-within{border-color:var(--ink);box-shadow:0 0 0 3px color-mix(in srgb,var(--ink) 22%,transparent)}
+.search .i{color:var(--dim)}
+.search input{border:0;background:none;padding:0;height:100%;box-shadow:none!important}
+.search kbd{flex:0 0 auto}
+.filters{display:flex;gap:6px;flex-wrap:wrap;width:100%}
+.filter{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 12px;border-radius:999px;border:1px solid var(--line-2);
+  font-size:12.5px;font-weight:600;color:var(--paper-2);transition:background-color .16s,color .16s,border-color .16s}
+.filter:hover{border-color:var(--line-3);color:var(--paper)}
+.filter b{font-family:var(--f-mono);font-size:11.5px;font-weight:500;color:var(--dim)}
+.filter.is-on{background:var(--paper);border-color:var(--paper);color:var(--on-ink)}
+.filter.is-on b{color:rgba(11,11,12,.62)}
+.lib-scroll{flex:1;min-height:0;overflow-y:auto;padding:0 22px 32px}
+.day-h{position:sticky;top:0;z-index:2;display:flex;align-items:baseline;gap:10px;padding:16px 0 10px;background:var(--bg)}
+.day-h h3{font-family:var(--f-poster);font-size:25px;line-height:1;text-transform:uppercase;font-weight:400}
+.day-h span{font-family:var(--f-mono);font-size:12px;color:var(--dim)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.card{position:relative;aspect-ratio:1;border-radius:var(--r);overflow:hidden;background:var(--panel);display:block;width:100%}
+.card img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .45s var(--ease)}
+.card:hover img{transform:scale(1.035)}
+.card .kd{position:absolute;top:7px;left:7px;width:11px;height:11px;box-shadow:0 0 0 2px rgba(11,11,12,.65)}
+.card .cap{position:absolute;left:0;right:0;bottom:0;padding:20px 8px 7px;font-size:12px;font-weight:500;text-align:left;color:var(--paper);
+  background:linear-gradient(transparent,rgba(11,11,12,.9));white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0;transition:opacity .18s}
+.card:hover .cap,.card.is-sel .cap,.card:focus-visible .cap{opacity:1}
+.card.is-sel{outline:3px solid var(--ink);outline-offset:-3px}
+.card.is-piece::after{content:"En la mesa";position:absolute;top:6px;right:6px;padding:2px 7px;border-radius:3px;font-size:11px;font-weight:700;
+  background:var(--paper);color:var(--on-ink)}
+/* selección múltiple */
+.card .ck{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;border:2px solid var(--paper);
+  background:rgba(11,11,12,.55);display:none;place-items:center;color:var(--on-ink);transition:background-color .14s,border-color .14s}
+.card .ck .i{width:16px;height:16px;stroke-width:2.4;opacity:0}
+.library.is-selecting .card .ck{display:grid}
+.library.is-selecting .card.is-piece::after{display:none}
+.library.is-selecting .card{cursor:pointer}
+.card.is-picked{outline:3px solid var(--ink);outline-offset:-3px}
+.card.is-picked img,.card.is-picked:hover img{transform:scale(.9)}
+.card.is-picked .ck{background:var(--ink);border-color:var(--ink)}
+.card.is-picked .ck .i{opacity:1}
+.selbar{flex:0 0 auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 22px;border-top:1px solid var(--line);background:var(--panel)}
+.selcount{font-size:14px;font-weight:600;margin-right:6px}
+.btn.trash{background:var(--bad);border-color:var(--bad);color:var(--on-ink)}
+.btn.trash:hover{filter:brightness(1.1);background:var(--bad)}
+.lib-empty{padding:90px 20px;text-align:center}
+.lib-empty b{display:block;font-family:var(--f-poster);font-weight:400;font-size:48px;line-height:.9;text-transform:uppercase;color:var(--ink)}
+.lib-empty p{color:var(--dim);margin:10px 0 18px}
+
+/* ------------------------------------------------------------- capas */
+.toasts{position:fixed;right:calc(var(--side) + 18px);bottom:calc(var(--dock) + 16px);z-index:200;display:flex;flex-direction:column;gap:8px;align-items:flex-end;pointer-events:none}
+.toast{pointer-events:auto;display:flex;align-items:center;gap:10px;padding:10px 12px 10px 14px;max-width:min(460px,92vw);border-radius:var(--r);
+  background:var(--paper);color:var(--on-ink);font-size:13px;font-weight:600;box-shadow:0 18px 44px -14px rgba(0,0,0,.8);animation:tin .3s var(--ease)}
+.toast.bad{background:var(--bad);color:var(--on-ink)}
+.toast .i{width:16px;height:16px}
+.toast .btn{height:28px;padding:0 10px;font-size:12px;background:rgba(11,11,12,.12);border-color:rgba(11,11,12,.3);color:var(--on-ink)}
+@keyframes tin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.sheet{position:fixed;inset:0;z-index:150;display:flex;justify-content:flex-end;background:rgba(5,5,6,.62)}
+.sheet-panel{width:min(470px,100vw);height:100%;background:var(--panel);display:flex;flex-direction:column;animation:slidein .3s var(--ease)}
+@keyframes slidein{from{transform:translateX(24px);opacity:.4}to{transform:none;opacity:1}}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px 13px 18px;background:var(--ink);color:var(--on-ink)}
+.sheet-head h3{font-family:var(--f-poster);font-size:32px;line-height:.9;text-transform:uppercase;font-weight:400}
+.sheet-head .btn{background:rgba(11,11,12,.12);border-color:rgba(11,11,12,.3);color:var(--on-ink)}
+.sheet-body{flex:1;min-height:0;overflow-y:auto}
+.job{display:flex;gap:12px;align-items:flex-start;padding:12px 18px;border-bottom:1px solid var(--line)}
+.job .jt{width:48px;height:48px;border-radius:3px;object-fit:cover;background:var(--field);flex:0 0 auto}
+button.jt{padding:0;overflow:hidden}
+button.jt img{width:100%;height:100%;object-fit:cover;display:block}
+.job .jb{flex:1;min-width:0}
+.job p{font-size:13px;color:var(--paper-2);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.job .jm{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;font-family:var(--f-mono);font-size:11.5px;color:var(--dim)}
+.job .er{color:#FF8A82;font-size:12px;margin-top:4px;word-break:break-word}
+.st{font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;white-space:nowrap;background:var(--field-2);color:var(--paper-2)}
+.st.running,.st.queued{background:var(--ink);color:var(--on-ink)}
+.st.failed{background:rgba(255,79,69,.16);color:#FF8A82}
+.st.succeeded{background:var(--green);color:var(--on-ink)}
+.picker-search{padding:12px 16px;border-bottom:1px solid var(--line)}
+.picker-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:12px 16px}
+.picker-grid button{position:relative;aspect-ratio:1;border-radius:var(--r);overflow:hidden;background:var(--field)}
+.picker-grid img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s var(--ease)}
+.picker-grid button:hover img{transform:scale(1.05)}
+.picker-grid button:disabled{opacity:.3}
+.picker-grid button .kd{position:absolute;top:6px;left:6px;box-shadow:0 0 0 2px rgba(11,11,12,.65)}
+.picker-grid button .used{position:absolute;inset:auto 6px 6px auto;padding:2px 6px;border-radius:3px;font-size:11px;font-weight:700;background:var(--paper);color:var(--on-ink)}
+/* cupo 24 h: píldora + panel */
+.quota .q-n{font-size:15px;font-weight:700;color:var(--paper)}
+.quota .q-of{font-size:12px;color:var(--dim);margin-left:-4px}
+.quota .bar{width:56px;height:5px;background:#2A2A2F;border-radius:3px;overflow:hidden}
+.quota .bar i{display:block;height:100%;width:0;background:var(--paper-2);transition:width .6s var(--ease),background-color .3s}
+.quota .q-next{font-size:12px;color:var(--paper-2);font-variant-numeric:tabular-nums}
+.quota.is-low{border-color:var(--orange)}
+.quota.is-low .bar i{background:var(--orange)}
+.quota.is-out{border-color:var(--bad);background:rgba(255,79,69,.1)}
+.quota.is-out .bar i{background:var(--bad)}
+.quota.is-out .q-n{color:#FF8A82}
+.q-hero{padding:20px 18px 16px;border-bottom:1px solid var(--line)}
+.q-hero .big{display:flex;align-items:baseline;gap:10px}
+.q-hero .big b{font-size:64px;line-height:.9;font-weight:700;letter-spacing:-.02em}
+.q-hero .big span{font-size:15px;color:var(--paper-2)}
+.q-meter{position:relative;height:12px;margin-top:14px;border-radius:3px;background:#2A2A2F;overflow:hidden}
+.q-meter i{position:absolute;inset:0 auto 0 0;background:var(--paper-2);border-radius:3px 0 0 3px}
+.q-meter.is-low i:not(.res){background:var(--orange)}
+.q-meter.is-out i:not(.res){background:var(--bad)}
+.q-meter i.res{background:repeating-linear-gradient(135deg,var(--orange) 0 4px,transparent 4px 8px);border-radius:0}
+.q-legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:9px;font-size:12.5px;color:var(--paper-2)}
+.q-legend span{display:inline-flex;align-items:center;gap:7px}
+.q-legend i{width:14px;height:8px;border-radius:2px;display:inline-block}
+.q-next-line{margin-top:12px;font-size:14px;color:var(--paper)}
+.q-next-line b{font-variant-numeric:tabular-nums}
+.q-sec{padding:16px 18px;border-bottom:1px solid var(--line)}
+.q-sec h4{font-size:13px;font-weight:600;margin-bottom:4px}
+.q-sec .sub{font-size:12.5px;color:var(--dim)}
+.q-chart{position:relative;margin-top:12px}
+.q-chart svg{display:block;width:100%;height:auto;overflow:visible}
+.q-chart .bar-r{fill:var(--paper-2)}
+.q-chart .hit{fill:transparent;cursor:default}
+.q-chart .hit:hover+.bar-r,.q-chart .hit:focus+.bar-r{fill:var(--paper)}
+.q-chart .grid{stroke:rgba(244,241,234,.1);stroke-width:1}
+.q-chart text{fill:var(--dim);font-family:var(--f-mono);font-size:10.5px;font-variant-numeric:tabular-nums}
+.q-chart text.val{fill:var(--paper-2)}
+.q-tip{position:absolute;z-index:3;pointer-events:none;transform:translate(-50%,-100%);margin-top:-8px;padding:6px 9px;border-radius:3px;
+  background:var(--paper);color:var(--on-ink);font-size:12px;font-weight:600;white-space:nowrap}
+.q-table{width:100%;border-collapse:collapse;margin-top:6px;font-size:12.5px}
+.q-table th{text-align:left;font-weight:600;color:var(--dim);padding:6px 0;border-bottom:1px solid var(--line)}
+.q-table td{padding:6px 0;border-bottom:1px solid var(--line);color:var(--paper-2);font-variant-numeric:tabular-nums}
+.q-table td:last-child,.q-table th:last-child{text-align:right}
+.q-note{font-size:12.5px;color:var(--dim);line-height:1.55}
+.q-note b{color:var(--paper-2);font-weight:600}
+.q-stale{display:flex;gap:8px;align-items:flex-start;margin:12px 18px 0;padding:9px 10px;border-radius:var(--r);background:rgba(255,122,0,.12);color:#FFB070;font-size:12.5px}
+.run-quota{color:#FF8A82}
+.help-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 18px;border-bottom:1px solid var(--line);font-size:13.5px;color:var(--paper-2)}
+
+.lightbox{position:fixed;inset:0;z-index:180;display:grid;grid-template-columns:minmax(0,1fr) 380px;background:rgba(5,5,6,.97);animation:fade .2s var(--ease-2)}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.lb-stage{position:relative;min-width:0;min-height:0;overflow:hidden}
+/* el visor: la imagen se encaja en .lb-view y el zoom/pan va por transform */
+.lb-view{position:absolute;inset:56px 70px 36px;display:flex;align-items:center;justify-content:center;touch-action:none;overscroll-behavior:contain}
+.lb-view img{max-width:100%;max-height:100%;object-fit:contain;display:block;box-shadow:0 40px 100px -40px #000;
+  transform-origin:0 0;user-select:none;-webkit-user-drag:none;cursor:zoom-in}
+.lb-view.is-zoomed img{box-shadow:none;cursor:grab}
+.lb-view.is-panning img{cursor:grabbing}
+.lb-view img.is-checker{background:repeating-conic-gradient(#202024 0 25%,#16161A 0 50%) 0 0/20px 20px}
+.lb-zoom{position:absolute;right:14px;bottom:14px;z-index:2;display:flex;align-items:center;gap:2px;padding:3px;border-radius:999px;
+  background:var(--panel-2);border:1px solid var(--line-2)}
+.lb-zoom button{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:var(--paper-2);transition:background-color .16s,color .16s}
+.lb-zoom button:hover{background:var(--paper);color:var(--on-ink)}
+.lb-zoom button:disabled{opacity:.35;pointer-events:none}
+.lb-zoom output{min-width:58px;text-align:center;font-family:var(--f-mono);font-size:12px;color:var(--paper);font-variant-numeric:tabular-nums}
+.lb-zoom .fit{width:auto;padding:0 12px;border-radius:999px;font-size:12px;font-weight:600}
+.lb-hint{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);z-index:2;padding:6px 12px;border-radius:999px;
+  background:rgba(11,11,12,.86);color:var(--paper-2);font-size:12.5px;pointer-events:none;white-space:nowrap;transition:opacity .4s}
+.lb-hint.is-gone{opacity:0}
+.lb-btn{position:absolute;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--panel-2);border:1px solid var(--line-2);color:var(--paper);transition:background-color .16s,color .16s}
+.lb-btn:hover{background:var(--paper);color:var(--on-ink)}
+.lb-close{top:14px;left:14px}
+.lb-prev{left:14px;top:50%;margin-top:-23px}
+.lb-next{right:14px;top:50%;margin-top:-23px}
+.lb-pos{position:absolute;top:24px;left:50%;transform:translateX(-50%);font-family:var(--f-mono);font-size:12px;color:var(--dim)}
+.lb-side{background:var(--panel);border-left:1px solid var(--line);overflow-y:auto;min-height:0}
+
+.dropover{position:fixed;inset:0;z-index:300;display:grid;place-items:center;padding:24px;pointer-events:none;
+  background:color-mix(in srgb,var(--ink) 92%,transparent);color:var(--on-ink);text-align:center}
+.dropover b{display:block;font-family:var(--f-poster);font-weight:400;font-size:clamp(64px,10vw,140px);line-height:.86;text-transform:uppercase}
+.dropover span{display:block;font-size:17px;font-weight:600;margin-top:16px}
+
+/* ---------------------------------------------------------- responsive */
+@media (max-width:1500px){
+  #pieceActs [data-act="add-ref"] .lab,#pieceActs [data-act="use-prompt"] .lab{display:none}
+  #pieceActs [data-act="add-ref"],#pieceActs [data-act="use-prompt"]{width:36px;padding:0}
+}
+@media (max-width:1280px){
+  :root{--side:350px;--rail:80px}
+  .brand-sub,.usage .plan,.quota .bar{display:none}
+  .fmts{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .piece-acts .btn .lab{display:none}
+  .piece-acts .btn{width:36px;padding:0}
+  .lightbox{grid-template-columns:minmax(0,1fr) 340px}
+}
+@media (max-width:1040px){
+  :root{--dock:auto;--side:100%}
+  body{overflow:auto}
+  .app{display:block;height:auto;min-height:100dvh;padding-bottom:calc(66px + env(safe-area-inset-bottom))}
+  .top{position:sticky;top:0;height:54px;gap:8px;padding-right:10px}
+  .brand{min-width:0;padding:0 12px 3px;gap:10px}
+  .wordmark{font-size:23px}
+  .brand-mark{width:24px;height:24px}
+  .usage .plan,#statusTxt,.quota .q-next{display:none}
+  .pill{padding:0 10px}
+  .rail{position:fixed;left:0;right:0;bottom:0;top:auto;height:calc(66px + env(safe-area-inset-bottom));padding:0 6px env(safe-area-inset-bottom);
+    flex-direction:row;align-items:center;border-right:0;border-top:1px solid var(--line-2);z-index:60}
+  .rail-item{flex:1;height:54px;margin:0 2px;gap:3px}
+  .rail-item .k,.rail-sep,.rail-foot,.rail-ind{display:none}
+  .rail-item.is-active{background:var(--ink)}
+  .rail-item.upload{height:54px}
+  .rail-item .txt{font-size:11px}
+  .work{display:block}
+  .desk{display:block}
+  .stage{height:48vh;min-height:300px}
+  .stage-area{padding:40px 14px 14px}
+  .empty-card{padding:20px 20px 20px}
+  .empty-card h2{font-size:52px}
+  .piece-bar{flex-wrap:wrap}
+  .piece-acts{width:100%}
+  .piece-acts .btn .lab{display:inline}
+  .piece-acts .btn{width:auto;padding:0 12px}
+  .dock{height:auto;padding:12px 0}
+  .side{border-left:0;border-top:1px solid var(--line)}
+  .panels{overflow:visible}
+  .runbar{position:sticky;bottom:calc(66px + env(safe-area-inset-bottom));z-index:40;box-shadow:0 -16px 30px -18px rgba(0,0,0,.9)}
+  body[data-mode="biblioteca"] .side{display:none}
+  .library{display:block}
+  .lib-head{position:sticky;top:54px;z-index:5;background:var(--bg)}
+  .lib-head h2{font-size:36px}
+  .search{margin-left:0;max-width:none;flex-basis:100%;order:3}
+  .filters{order:4;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .lib-scroll{overflow:visible;padding:0 14px 24px}
+  .selbar{position:sticky;bottom:calc(66px + env(safe-area-inset-bottom));z-index:6;padding:10px 14px}
+  .day-h{top:186px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:6px}
+  .card .cap{opacity:1}
+  .toasts{left:12px;right:12px;bottom:calc(150px + env(safe-area-inset-bottom));align-items:stretch}
+  .lightbox{display:block;overflow-y:auto}
+  .lb-stage{height:62vh}
+  .lb-view{inset:58px 12px 64px}
+  .lb-hint{display:none}
+  .lb-zoom{right:auto;left:50%;transform:translateX(-50%);bottom:12px}
+  .lb-prev,.lb-next{top:auto;bottom:12px;margin:0}
+  .lb-side{border-left:0;min-height:0;overflow:visible}
+  .ref .x,.ref .mk{opacity:1}
+  .slot .send{opacity:1}
+}
+@media (max-width:560px){
+  .usage,.quota .q-of,#jobsTxt .w{display:none}
+  .brand{padding-left:12px}
+  .wordmark span{display:none}
+  .fmts{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+  .fmt{min-height:76px}
+  .ph h2{font-size:40px}
+  .grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+</style>
+</head>
+<body data-mode="crear">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20l4.5-1.2 9-9a2.1 2.1 0 0 0-3-3l-9 9L4 20Z"/><path d="M14.5 5.5l4 4"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5Z"/><path d="M3 13l9 5 9-5"/></symbol>
+    <symbol id="i-tools" viewBox="0 0 24 24"><path d="M14 6a3.5 3.5 0 1 0 4 4l3 3-2 2-3-3a3.5 3.5 0 0 1-4-4L9 5 7 7l3 3"/><path d="M3 21l6.5-6.5"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+    <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M4 18a8 8 0 1 1 16 0"/><path d="M12 18l4-6"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="1"/><path d="M5 15V4h11"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-compare" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M12 2v20"/><path d="M7 12h2M15 12h2"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3l2.6 6.3 6.4.5-4.9 4.2 1.5 6.4L12 17l-5.6 3.4 1.5-6.4L3 9.8l6.4-.5L12 3Z"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.6 2.6 0 1 1 3.4 2.5c-.6.2-.9.8-.9 1.5v.4M12 17v.4"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+    <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+    <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9 17H3L12 3Z"/><path d="M12 9v5M12 17v.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 6h6l2 2h10v11H3V6Z"/></symbol>
+    <symbol id="i-out" viewBox="0 0 24 24"><path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/></symbol>
+    <symbol id="i-frame" viewBox="0 0 24 24"><path d="M3 8V3h5M16 3h5v5M21 16v5h-5M8 21H3v-5"/><rect x="7" y="7" width="10" height="10"/></symbol>
+    <symbol id="i-cut" viewBox="0 0 24 24"><circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/><path d="M8 16L19 3M16 16L5 3"/></symbol>
+    <symbol id="i-crop" viewBox="0 0 24 24"><path d="M6 2v16h16M2 6h16v16"/></symbol>
+    <symbol id="i-scan" viewBox="0 0 24 24"><path d="M3 8V4h4M17 4h4v4M21 16v4h-4M7 20H3v-4"/><path d="M7 9h10M7 12h10M7 15h6"/></symbol>
+    <symbol id="i-type" viewBox="0 0 24 24"><path d="M5 6V4h14v2M12 4v16M9 20h6"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z"/></symbol>
+    <symbol id="i-scale" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-7 7M10 20H4v-6M4 20l7-7"/></symbol>
+    <symbol id="i-psd" viewBox="0 0 24 24"><rect x="3" y="3" width="12" height="12"/><rect x="9" y="9" width="12" height="12"/></symbol>
+    <symbol id="i-redo" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></symbol>
+    <symbol id="i-queue" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></symbol>
+  </defs>
+</svg>
+
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 28 28" aria-hidden="true"><rect x="2" y="4" width="24" height="5" fill="#FF2E88"/><rect x="2" y="11.5" width="24" height="5" fill="#FFE600"/><rect x="2" y="19" width="24" height="5" fill="#22E07A"/></svg>
+      <h1 class="wordmark">Tapa <span>Studio</span></h1>
+      <span class="brand-sub">Academia Vexler</span>
+    </div>
+    <span class="top-sep"></span>
+    <div class="top-right">
+      <button class="pill quota" id="quotaBtn" title="Cupo de GPT Image en las últimas 24 h"><svg class="i"><use href="#i-gauge"/></svg><span class="q-n" id="quotaN">—</span><span class="q-of" id="quotaOf">/ 100</span><span class="bar"><i id="quotaBar"></i></span><span class="q-next" id="quotaNext"></span></button>
+      <button class="pill" id="jobsBtn" title="Trabajos en vuelo e historial"><svg class="i"><use href="#i-queue"/></svg><span id="jobsTxt"><span class="w">Sin trabajos</span></span></button>
+      <button class="pill usage" id="usageBtn" title="Consumo del plan · clic para actualizar"><span class="plan" id="usagePlan">Plan</span><span class="bar"><i id="usageBar"></i></span><span class="val" id="usageVal">—</span></button>
+      <span class="pill" id="statusPill" title="Estado de la API"><span class="dot" id="statusDot"></span><span id="statusTxt">Conectando</span></span>
+    </div>
+  </header>
+
+  <nav class="rail" aria-label="Modos">
+    <span class="rail-ind" id="railInd" aria-hidden="true"></span>
+    <button class="rail-item is-active" data-mode="crear" aria-current="page"><svg class="i"><use href="#i-pen"/></svg><span class="txt">Crear</span><span class="k">1</span></button>
+    <button class="rail-item" data-mode="editar"><svg class="i"><use href="#i-layers"/></svg><span class="txt">Editar</span><span class="k">2</span></button>
+    <button class="rail-item" data-mode="herramientas"><svg class="i"><use href="#i-tools"/></svg><span class="txt">Herram.</span><span class="k">3</span></button>
+    <button class="rail-item" data-mode="biblioteca"><svg class="i"><use href="#i-grid"/></svg><span class="txt">Biblioteca</span><span class="k">4</span></button>
+    <div class="rail-sep"></div>
+    <button class="rail-item upload" id="uploadBtn" title="Subir imágenes (U)"><svg class="i"><use href="#i-upload"/></svg><span class="txt">Subir</span><span class="k">U</span></button>
+    <div class="rail-foot">
+      <button class="lnk" id="openFolder" title="Abrir la carpeta de salidas"><svg class="i"><use href="#i-folder"/></svg>Carpeta</button>
+      <button class="lnk" id="helpBtn" title="Atajos (?)"><svg class="i"><use href="#i-help"/></svg>Atajos</button>
+      <a class="lnk" id="logoutBtn" href="/logout"><svg class="i"><use href="#i-out"/></svg>Salir</a>
+      <span class="ver" id="verTag">V4</span>
+    </div>
+  </nav>
+
+  <main class="work">
+    <section class="desk" id="desk">
+      <div class="stage is-empty" id="stage">
+        <canvas class="bands" id="bands" aria-hidden="true"></canvas>
+        <div class="stage-area">
+          <div class="frame" id="frame">
+            <img class="piece" id="pieceImg" alt="">
+            <img class="cmp" id="cmpImg" alt="" hidden>
+            <div class="curtain" id="curtain" hidden>
+              <input type="range" id="curtainRange" min="0" max="100" value="50" aria-label="Comparar con la base: desliza">
+              <span class="line"></span>
+              <span class="knob"><svg class="i"><use href="#i-compare"/></svg></span>
+              <span class="tag a">Antes</span><span class="tag b">Después</span>
+            </div>
+            <div class="wipe" id="wipe"></div>
+          </div>
+        </div>
+        <div class="hud" id="hud"></div>
+        <div class="sweep" id="sweep" hidden><i></i></div>
+        <div class="empty">
+          <div class="empty-card">
+            <h2 id="emptyTitle">Mesa vacía</h2>
+            <p id="emptyText">Escribe el brief a la derecha y genera. Las variantes aparecen abajo mientras se cocinan.</p>
+            <div class="empty-clock num" id="emptyClock" hidden></div>
+            <div class="empty-acts" id="emptyActs">
+              <button class="btn" data-act="upload"><svg class="i"><use href="#i-upload"/></svg>Subir imagen</button>
+              <button class="btn ghost" data-act="library"><svg class="i"><use href="#i-grid"/></svg>Abrir biblioteca</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="piece-bar is-empty" id="pieceBar">
+        <div class="piece-meta">
+          <div class="piece-name" id="pieceName">Sin pieza en la mesa</div>
+          <div class="piece-sub" id="pieceSub">Genera, sube o elige una de la biblioteca</div>
+        </div>
+        <div class="piece-acts" id="pieceActs">
+          <a class="btn ink" data-act="download" id="pieceDown" download><svg class="i"><use href="#i-download"/></svg><span class="lab">Descargar</span></a>
+          <button class="btn" data-act="compare" id="cmpBtn" title="Comparar con la base (C)"><svg class="i"><use href="#i-compare"/></svg><span class="lab">Comparar</span></button>
+          <button class="btn" data-act="to-edit" title="Usarla como base en Editar"><svg class="i"><use href="#i-layers"/></svg><span class="lab">Editar</span></button>
+          <button class="btn" data-act="add-ref" title="Sumarla como referencia"><svg class="i"><use href="#i-plus"/></svg><span class="lab">Ref</span></button>
+          <button class="btn" data-act="to-tools" title="Abrirla en Herramientas"><svg class="i"><use href="#i-tools"/></svg><span class="lab">Herram.</span></button>
+          <button class="btn" data-act="use-prompt" id="usePromptBtn" title="Cargar su prompt en Crear"><svg class="i"><use href="#i-redo"/></svg><span class="lab">Prompt</span></button>
+          <button class="btn danger sq" data-act="del" title="Mover a la papelera"><svg class="i"><use href="#i-trash"/></svg></button>
+        </div>
+      </div>
+
+      <div class="dock" id="dock">
+        <div class="dock-sec" id="batchSec" hidden>
+          <div class="dock-label"><b id="batchTitle">Tanda</b><span id="batchInfo"></span></div>
+          <div class="slots" id="slots"></div>
+        </div>
+        <div class="dock-sec">
+          <div class="dock-label"><b>Recientes</b><span id="recentInfo">clic: a la mesa</span></div>
+          <div class="recent" id="recent"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="library" id="library" hidden>
+      <div class="lib-head">
+        <h2>Biblioteca</h2>
+        <span class="tot" id="libTotal">0 piezas</span>
+        <label class="search"><svg class="i"><use href="#i-search"/></svg>
+          <input type="text" id="libSearch" placeholder="Buscar por nombre o por prompt" autocomplete="off" aria-label="Buscar en la biblioteca"><kbd>/</kbd></label>
+        <button type="button" class="btn" id="libSelect" aria-pressed="false"><svg class="i"><use href="#i-check"/></svg><span>Seleccionar</span></button>
+        <div class="filters" id="libFilters">
+          <button class="filter is-on" data-kind="all">Todo <b data-count="all">0</b></button>
+          <button class="filter" data-kind="gen"><span class="kd" data-k="gen"></span>Creadas <b data-count="gen">0</b></button>
+          <button class="filter" data-kind="edit"><span class="kd" data-k="edit"></span>Editadas <b data-count="edit">0</b></button>
+          <button class="filter" data-kind="tool"><span class="kd" data-k="tool"></span>Herramientas <b data-count="tool">0</b></button>
+          <button class="filter" data-kind="text"><span class="kd" data-k="text"></span>Texto <b data-count="text">0</b></button>
+          <button class="filter" data-kind="ref"><span class="kd" data-k="ref"></span>Subidas <b data-count="ref">0</b></button>
+        </div>
+      </div>
+      <div class="lib-scroll" id="libScroll"></div>
+      <div class="selbar" id="selBar" hidden>
+        <span class="selcount" id="selCount" aria-live="polite">0 seleccionadas</span>
+        <button type="button" class="btn sm" id="selAll">Todo lo visible</button>
+        <button type="button" class="btn sm" id="selNone">Ninguna</button>
+        <span style="flex:1"></span>
+        <button type="button" class="btn trash" id="selTrash" disabled><svg class="i"><use href="#i-trash"/></svg>Mover a la papelera</button>
+        <button type="button" class="btn" id="selCancel"><svg class="i"><use href="#i-close"/></svg>Cancelar</button>
+      </div>
+    </section>
+  </main>
+
+  <aside class="side" id="side">
+    <div class="panels">
+      <!-- ================================================================ CREAR -->
+      <section class="panel" data-panel="crear">
+        <div class="ph"><h2>Crear</h2><p>Texto a imagen. Describe la pieza y elige el formato de salida.</p></div>
+        <div class="field">
+          <div class="field-head">
+            <label class="lbl" for="createPrompt">Brief</label>
+            <select id="createPreset" class="chip" aria-label="Presets" style="width:auto;max-width:180px;height:30px;padding:0 28px 0 11px;border-radius:999px;background-color:transparent"></select>
+          </div>
+          <textarea class="prompt" id="createPrompt" spellcheck="false" placeholder="Sujeto, composición, colores en hex, qué dejar vacío… Los modelos respetan mejor el inglés."></textarea>
+          <div class="chips" id="paletteChips"></div>
+          <div class="chips">
+            <button class="chip" data-insert="TEXT: absolutely NO text, NO letters, NO numbers, NO logos, NO watermark anywhere in the image."><svg class="i"><use href="#i-plus"/></svg>sin texto</button>
+            <button class="chip" data-insert="HARD COUNT: exactly the elements listed above and nothing else. Do not add extra objects, people or decorations."><svg class="i"><use href="#i-plus"/></svg>conteo exacto</button>
+            <button class="chip" data-insert="CENTER AREA: keep the middle 55% calm and empty, a smooth gradient only, so photos and typography can be placed on top later."><svg class="i"><use href="#i-plus"/></svg>centro limpio</button>
+            <button class="chip" data-save="createPrompt"><svg class="i"><use href="#i-star"/></svg>Guardar preset</button>
+          </div>
+          <div class="save-row" data-save-row="createPrompt" hidden>
+            <input type="text" placeholder="Nombre del preset" aria-label="Nombre del preset">
+            <button class="btn sm ink" data-save-ok>Guardar</button>
+            <button class="btn sm ghost" data-save-cancel>Cancelar</button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-head"><span class="lbl">Formato <small id="createFmtNote"></small></span></div>
+          <div class="fmts" id="createFmts" role="radiogroup" aria-label="Formato de salida"></div>
+        </div>
+        <div class="field">
+          <div class="field-head"><span class="lbl">Variantes <small>mismo brief, imágenes distintas</small></span></div>
+          <div class="seg" id="createCount" role="radiogroup" aria-label="Cuántas variantes">
+            <button type="button" data-n="1" class="is-on" role="radio" aria-checked="true">1</button>
+            <button type="button" data-n="2" role="radio" aria-checked="false">2</button>
+            <button type="button" data-n="4" role="radio" aria-checked="false">4</button>
+          </div>
+        </div>
+        <details class="more" id="createMore">
+          <summary><span class="lbl">Modelo y ajuste</span><span class="sum" id="createMoreSum"></span><svg class="i"><use href="#i-chev"/></svg></summary>
+          <div class="more-body">
+            <div class="models" id="createModels"></div>
+            <label class="chip" style="align-self:flex-start"><input type="checkbox" id="createNative">Tamaño nativo del modelo (sin formato)</label>
+            <div><span class="lbl">Cómo encajar en el formato</span>
+              <div class="seg" id="createFit" style="margin-top:8px" role="radiogroup" aria-label="Ajuste">
+                <button type="button" data-v="cover" class="is-on">Recortar</button><button type="button" data-v="contain">Encajar</button><button type="button" data-v="stretch">Estirar</button>
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- =============================================================== EDITAR -->
+      <section class="panel" data-panel="editar" hidden>
+        <div class="ph"><h2>Editar</h2><p>Hasta 16 referencias. La 1 es la base; nombra las demás en el brief como image 2, image 3…</p></div>
+        <div class="field">
+          <div class="field-head"><span class="lbl">Referencias</span><span class="counter" id="refCounter"><b>0</b> / 16</span></div>
+          <div class="refs" id="refList"></div>
+          <div class="chips">
+            <button class="chip" id="refPiece"><svg class="i"><use href="#i-arrow"/></svg>Sumar la pieza de la mesa</button>
+            <button class="chip" id="refPick"><svg class="i"><use href="#i-grid"/></svg>Desde biblioteca</button>
+            <button class="chip" id="refClear"><svg class="i"><use href="#i-close"/></svg>Vaciar</button>
+          </div>
+          <p class="hint" id="refHint">Arrastra imágenes acá o sobre la ventana. Arrastra una miniatura para reordenar; la estrella la vuelve base.</p>
+        </div>
+        <div class="field">
+          <div class="field-head">
+            <label class="lbl" for="editPrompt">Qué cambiar</label>
+            <select id="editPreset" class="chip" aria-label="Presets de edición" style="width:auto;max-width:180px;height:30px;padding:0 28px 0 11px;border-radius:999px;background-color:transparent"></select>
+          </div>
+          <textarea class="prompt" id="editPrompt" spellcheck="false" placeholder="Ej.: Image 1 is the base. Keep its composition. Place the emblem from image 2 centered, untouched…"></textarea>
+          <div class="chips">
+            <button class="chip" data-target="edit" data-insert="Image 1 is the base. Keep its composition, crop and lighting."><svg class="i"><use href="#i-plus"/></svg>image 1 es la base</button>
+            <button class="chip" data-target="edit" data-insert="Use image 2 exactly as provided: do not redraw, recolour or restyle it."><svg class="i"><use href="#i-plus"/></svg>image 2 intacta</button>
+            <button class="chip" data-target="edit" data-insert="Do not add text, letters or numbers anywhere."><svg class="i"><use href="#i-plus"/></svg>sin texto</button>
+            <button class="chip" data-save="editPrompt"><svg class="i"><use href="#i-star"/></svg>Guardar preset</button>
+          </div>
+          <div class="save-row" data-save-row="editPrompt" hidden>
+            <input type="text" placeholder="Nombre del preset" aria-label="Nombre del preset">
+            <button class="btn sm ink" data-save-ok>Guardar</button>
+            <button class="btn sm ghost" data-save-cancel>Cancelar</button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-head"><span class="lbl">Formato <small id="editFmtNote"></small></span></div>
+          <div class="fmts" id="editFmts" role="radiogroup" aria-label="Formato de salida"></div>
+        </div>
+        <div class="field">
+          <div class="field-head"><span class="lbl">Variantes <small>misma edición, resultados distintos</small></span></div>
+          <div class="seg" id="editCount" role="radiogroup" aria-label="Cuántas variantes">
+            <button type="button" data-n="1" class="is-on" role="radio" aria-checked="true">1</button>
+            <button type="button" data-n="2" role="radio" aria-checked="false">2</button>
+            <button type="button" data-n="4" role="radio" aria-checked="false">4</button>
+          </div>
+        </div>
+        <details class="more" id="editMore">
+          <summary><span class="lbl">Modelo y ajuste</span><span class="sum" id="editMoreSum"></span><svg class="i"><use href="#i-chev"/></svg></summary>
+          <div class="more-body">
+            <div class="models" id="editModels"></div>
+            <div><span class="lbl">Cómo encajar en el formato</span>
+              <div class="seg" id="editFit" style="margin-top:8px" role="radiogroup" aria-label="Ajuste">
+                <button type="button" data-v="cover" class="is-on">Recortar</button><button type="button" data-v="contain">Encajar</button><button type="button" data-v="stretch">Estirar</button>
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- ========================================================= HERRAMIENTAS -->
+      <section class="panel" data-panel="herramientas" hidden>
+        <div class="ph"><h2>Herram.</h2><p>Procesado local sobre la pieza de la mesa. Gratis, salvo separar en capas.</p></div>
+        <div class="field">
+          <div class="field-head"><span class="lbl">Pieza de trabajo</span></div>
+          <div id="toolCurrent"></div>
+        </div>
+        <div class="tools" id="tools">
+          <div class="tool is-open" data-tool="remove_bg">
+            <button class="tool-head" type="button" aria-expanded="true"><svg class="i ic"><use href="#i-cut"/></svg><span><strong>Quitar fondo</strong><em>PNG transparente para stickers e ítems</em></span><svg class="i chev"><use href="#i-chev"/></svg></button>
+            <div class="tool-body">
+              <div class="seg" id="bgMode" role="radiogroup" aria-label="Qué fondo quitar">
+                <button type="button" data-v="auto" class="is-on">Auto</button><button type="button" data-v="white">Blanco</button><button type="button" data-v="color">Color</button>
+              </div>
+              <div class="row" id="bgColorRow" hidden><input type="color" id="bgColor" value="#ffffff" aria-label="Color de fondo"><span class="hint" style="margin:0">El color exacto del fondo a borrar.</span></div>
+              <div><div class="range-row"><label class="lbl" for="bgTol">Tolerancia</label><output id="bgTolVal">22</output></div>
+                <input type="range" id="bgTol" min="0" max="100" value="22"></div>
+              <div><div class="range-row"><label class="lbl" for="bgFeather">Suavizado del borde</label><output id="bgFeatherVal">1</output></div>
+                <input type="range" id="bgFeather" min="0" max="4" step="0.5" value="1"></div>
+              <p class="hint" style="margin:0">Si quedan restos, sube la tolerancia o cambia a Blanco / Color. Funciona con fondos parejos.</p>
+            </div>
+          </div>
+          <div class="tool" data-tool="format">
+            <button class="tool-head" type="button" aria-expanded="false"><svg class="i ic"><use href="#i-frame"/></svg><span><strong>Ajustar a formato</strong><em>Llevarla a A4, feed, story o banner exactos</em></span><svg class="i chev"><use href="#i-chev"/></svg></button>
+            <div class="tool-body">
+              <div class="fmts" id="toolFmts" role="radiogroup" aria-label="Formato"></div>
+              <div class="seg" id="toolFit" role="radiogroup" aria-label="Ajuste">
+                <button type="button" data-v="cover" class="is-on">Recortar</button><button type="button" data-v="contain">Encajar</button><button type="button" data-v="stretch">Estirar</button>
+              </div>
+            </div>
+          </div>
+          <div class="tool" data-tool="trim">
+            <button class="tool-head" type="button" aria-expanded="false"><svg class="i ic"><use href="#i-crop"/></svg><span><strong>Recortar márgenes</strong><em>Quita el aire transparente alrededor</em></span><svg class="i chev"><use href="#i-chev"/></svg></button>
+            <div class="tool-body"><p class="hint" style="margin:0">Úsalo después de quitar el fondo para que el PNG quede justo al contenido.</p></div>
+          </div>
+          <div class="tool" data-tool="ocr">
+            <button class="tool-head" type="button" aria-expanded="false"><svg class="i ic"><use href="#i-scan"/></svg><span><strong>Sacar texto · OCR</strong><em>Transcribe lo escrito en la imagen</em></span><svg class="i chev"><use href="#i-chev"/></svg></button>
+            <div class="tool-body">
+              <div><label class="lbl" for="ocrModel">Modelo de visión <small>gratis</small></label><select id="ocrModel" style="margin-top:8px"></select></div>
+              <textarea id="ocrText" rows="5" placeholder="El texto aparece acá." aria-label="Texto leído"></textarea>
+              <div class="row"><button class="btn sm" id="ocrCopy"><svg class="i"><use href="#i-copy"/></svg>Copiar</button><a class="btn sm ghost" id="ocrTxt" aria-disabled="true" download><svg class="i"><use href="#i-download"/></svg>Bajar .txt</a></div>
+            </div>
+          </div>
+          <div class="tool" data-tool="text_png">
+            <button class="tool-head" type="button" aria-expanded="false"><svg class="i ic"><use href="#i-type"/></svg><span><strong>Texto a PNG</strong><em>Títulos limpios para montar; no usa la pieza</em></span><svg class="i chev"><use href="#i-chev"/></svg></button>
+            <div class="tool-body">
+              <textarea id="tpText" rows="2" placeholder="GUÍA OCTUBRE 2026" aria-label="Texto"></textarea>
+              <div class="row"><select id="tpFont" aria-label="Fuente"></select><input type="number" id="tpSize" value="160" min="8" max="900" aria-label="Tamaño en px" style="width:96px;flex:0 0 auto"></div>
+              <div class="row" style="flex-wrap:wrap"><input type="color" id="tpColor" value="#FFFFFF" aria-label="Color del texto">
+                <label class="chip"><input type="checkbox" id="tpShadow" checked>Sombra</label>
+                <label class="chip"><input type="checkbox" id="tpUpper" checked>Mayúsculas</label></div>
+            </div>
+          </div>
+          <div class="tool" data-tool="palette">
+            <button class="tool-head" type="button" aria-expanded="false"><svg class="i ic"><use href="#i-drop"/></svg><span><strong>Paleta</strong><em>Los colores dominantes, para copiar en hex</em></span><svg class="i chev"><use href="#i-chev"/></svg></button>
+            <div class="tool-body"><div class="swatches" id="palOut"></div></div>
+          </div>
+          <div class="tool" data-tool="scale">
+            <button class="tool-head" type="button" aria-expanded="false"><svg class="i ic"><use href="#i-scale"/></svg><span><strong>Escalar</strong><em>Agrandar o achicar en porcentaje</em></span><svg class="i chev"><use href="#i-chev"/></svg></button>
+            <div class="tool-body">
+              <div class="row"><input type="number" id="scalePct" value="50" min="5" max="400" aria-label="Porcentaje" style="width:110px;flex:0 0 auto"><span class="hint" style="margin:0" id="scaleOut"></span></div>
+              <div class="chips" style="margin:0"><button class="chip" data-pct="25">25%</button><button class="chip" data-pct="50">50%</button><button class="chip" data-pct="200">200%</button></div>
+            </div>
+          </div>
+          <div class="tool" data-tool="layers">
+            <button class="tool-head" type="button" aria-expanded="false"><svg class="i ic"><use href="#i-psd"/></svg><span><strong>Separar en capas · PSD</strong><em>Sujeto, fondo y texto por separado</em></span><svg class="i chev"><use href="#i-chev"/></svg></button>
+            <div class="tool-body">
+              <p class="hint" style="margin:0">Devuelve PSD o PNGs por capa para seguir en Affinity: mover al alumno, cambiar el fondo o el color sin rehacer la pieza.</p>
+              <p class="hint" style="margin:0" id="layersWallet"></p>
+              <div class="files" id="layersOut"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================================== BIBLIOTECA -->
+      <section class="panel" data-panel="biblioteca" hidden>
+        <div class="ph"><h2>Ficha</h2><p>Clic en una pieza para abrirla en grande. Sus datos y acciones quedan acá.</p></div>
+        <div id="ficha"></div>
+      </section>
+    </div>
+
+    <div class="runbar" id="runbar">
+      <button class="run" id="runBtn"><span class="go" id="runLabel">Generar</span><kbd>Ctrl ⏎</kbd></button>
+      <div class="run-note"><span id="runNoteL"></span><span id="runNoteR"></span></div>
+      <div class="run-err" id="runErr" hidden><svg class="i"><use href="#i-alert"/></svg><span id="runErrTxt"></span><button id="runErrX" aria-label="Cerrar error"><svg class="i"><use href="#i-close"/></svg></button></div>
+    </div>
+  </aside>
+</div>
+
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+<div class="sheet" id="jobsSheet" hidden>
+  <div class="sheet-panel" role="dialog" aria-label="Trabajos">
+    <div class="sheet-head"><h3>Trabajos</h3><button class="btn sm" data-close><svg class="i"><use href="#i-close"/></svg>Cerrar</button></div>
+    <div class="sheet-body" id="jobsBody"></div>
+  </div>
+</div>
+
+<div class="sheet" id="quotaSheet" hidden>
+  <div class="sheet-panel" role="dialog" aria-labelledby="quotaTitle">
+    <div class="sheet-head"><h3 id="quotaTitle">Cupo 24 h</h3><button class="btn sm" data-close><svg class="i"><use href="#i-close"/></svg>Cerrar</button></div>
+    <div class="sheet-body" id="quotaBody"></div>
+  </div>
+</div>
+
+<div class="sheet" id="helpSheet" hidden>
+  <div class="sheet-panel" role="dialog" aria-label="Atajos">
+    <div class="sheet-head"><h3>Atajos</h3><button class="btn sm" data-close><svg class="i"><use href="#i-close"/></svg>Cerrar</button></div>
+    <div class="sheet-body">
+      <div class="help-row"><span>Cambiar de modo</span><span><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd></span></div>
+      <div class="help-row"><span>Ejecutar el modo (generar, editar, aplicar)</span><kbd>Ctrl ⏎</kbd></div>
+      <div class="help-row"><span>Subir imágenes</span><kbd>U</kbd></div>
+      <div class="help-row"><span>Buscar en la biblioteca</span><kbd>/</kbd></div>
+      <div class="help-row"><span>Descargar la pieza de la mesa</span><kbd>D</kbd></div>
+      <div class="help-row"><span>Comparar con la base</span><kbd>C</kbd></div>
+      <div class="help-row"><span>Pieza anterior / siguiente en el visor</span><span><kbd>←</kbd> <kbd>→</kbd></span></div>
+      <div class="help-row"><span>Zoom en el visor (también con la rueda)</span><span><kbd>+</kbd> <kbd>−</kbd> <kbd>0</kbd></span></div>
+      <div class="help-row"><span>Cerrar visor o panel</span><kbd>Esc</kbd></div>
+      <div class="help-row"><span>Este panel</span><kbd>?</kbd></div>
+      <p class="hint" style="padding:14px 18px">La API acepta una imagen por trabajo: 4 variantes son 4 trabajos en paralelo y 4 unidades. Las tandas corren en segundo plano; puedes seguir trabajando mientras se llenan abajo.</p>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="pickerSheet" hidden>
+  <div class="sheet-panel" role="dialog" aria-labelledby="pickerTitle">
+    <div class="sheet-head"><h3 id="pickerTitle">Elegir</h3><button class="btn sm" data-close><svg class="i"><use href="#i-close"/></svg>Cerrar</button></div>
+    <div class="picker-search"><input type="text" id="pickerSearch" placeholder="Buscar por nombre o prompt" autocomplete="off" aria-label="Buscar"></div>
+    <div class="sheet-body"><div class="picker-grid" id="pickerGrid"></div></div>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-label="Visor">
+  <div class="lb-stage">
+    <div class="lb-view" id="lbView"><img id="lbImg" alt="" draggable="false"></div>
+    <span class="lb-pos" id="lbPos"></span>
+    <span class="lb-hint" id="lbHint">Rueda: acercar y alejar · arrastra para mover · clic: 100 %</span>
+    <div class="lb-zoom" role="group" aria-label="Zoom">
+      <button id="lbZoomOut" aria-label="Alejar"><svg class="i"><use href="#i-minus"/></svg></button>
+      <output id="lbZoomVal" aria-live="polite">Encaje</output>
+      <button id="lbZoomIn" aria-label="Acercar"><svg class="i"><use href="#i-plus"/></svg></button>
+      <button class="fit" id="lbZoomFit" title="Volver a encajar (0)">Encajar</button>
+    </div>
+    <button class="lb-btn lb-close" id="lbClose" aria-label="Cerrar visor"><svg class="i"><use href="#i-close"/></svg></button>
+    <button class="lb-btn lb-prev" id="lbPrev" aria-label="Anterior"><svg class="i"><use href="#i-left"/></svg></button>
+    <button class="lb-btn lb-next" id="lbNext" aria-label="Siguiente"><svg class="i"><use href="#i-right"/></svg></button>
+  </div>
+  <aside class="lb-side" id="lbSide"></aside>
+</div>
+
+<div class="dropover" id="dropover" hidden><div><b id="dropTitle">Suelta para subir</b><span id="dropSub">Van a la biblioteca</span></div></div>
+
+<input type="file" id="fileInput" accept="image/*" multiple hidden>
+<script src="/assets/vendor/gsap.min.js"></script>
+<script src="/assets/vendor/three.min.js"></script>
+<script>__APP_JS__</script>
+</body>
+</html>

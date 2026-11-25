@@ -1,0 +1,174 @@
+{
+  "title": "Tapa Studio · mundo visual",
+  "question": "El sorteo asignó «Cuaderno cuadriculado». ¿Lo mantienes, eliges una alternativa o vuelves a tirar?",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "Cuaderno cuadriculado",
+      "kicker": "THE ROLL",
+      "lineage": "Cuaderno escolar de 5 mm, lapicero azul, margen rojo y resaltador",
+      "thesis": "La mesa de producción como el cuaderno del ciclo: la cuadrícula es el suelo, el resaltador marca lo elegido y lo que avanza.",
+      "palette": ["#F6F8F7", "#06363C", "#1F3FB5", "#FDDB00", "#D3263A", "#14181E"],
+      "materials": ["cuadrícula 5 mm", "forro teal en el riel", "trazo de resaltador", "lapicero azul y rojo"],
+      "viewport": "Riel con forro teal a la izquierda; al centro la pieza sobre cuadrícula; a la derecha el brief (prompt, refs, modelo, variantes, Generar); abajo la tanda, donde cada variante se llena cuadro a cuadro mientras se genera.",
+      "risk": "Puede leerse escolar si la tipografía y la densidad no son de herramienta profesional; la cuadrícula tiene que quedarse callada detrás de imágenes muy cargadas.",
+      "raised": [
+        { "from": "challenger-ikeda", "raise": "Paleta sin grises arbitrarios: cada neutro es papel, cuadrícula o tinta." },
+        { "from": "challenger-mono", "raise": "Cada control muestra su consecuencia al lado: unidades que cobra, px de salida, tiempo esperado." },
+        { "from": "challenger-atlas", "raise": "La jerarquía la lleva el tamaño de la pieza (actual grande, tanda media, historial chico), no pesos tipográficos." },
+        { "from": "challenger-botanical", "raise": "Linaje registrado: base → edición → transparente a la misma escala, comparables con una cortina." }
+      ],
+      "wireframe": {
+        "cols": 12, "rows": 10,
+        "regions": [
+          { "label": "riel · forro", "x": 0, "y": 0, "w": 1, "h": 10, "accent": true },
+          { "label": "pieza sobre cuadrícula", "x": 1, "y": 0, "w": 7, "h": 7 },
+          { "label": "tanda · se llena cuadro a cuadro", "x": 1, "y": 7, "w": 7, "h": 2 },
+          { "label": "acciones de la pieza", "x": 1, "y": 9, "w": 7, "h": 1 },
+          { "label": "brief · refs · Generar", "x": 8, "y": 0, "w": 4, "h": 10 }
+        ]
+      }
+    },
+    {
+      "id": "model-pick",
+      "label": "Cartel chicha",
+      "kicker": "IMPECCABLE’S PICK",
+      "lineage": "Carteles chicha de Lima: flúor sobre negro, letra pintada a mano, serigrafía de esquina",
+      "thesis": "La mesa con la energía del cartel de calle limeño: bloques flúor que anuncian el estado de cada pieza a la distancia.",
+      "palette": ["#0B0B0C", "#FF2E88", "#FFE600", "#22E07A", "#FF7A00"],
+      "materials": ["tinta flúor", "letra condensada pintada", "bandas de color plano"],
+      "viewport": "Riel negro con bandas flúor por modo; la pieza al centro; el estado de la tanda como banda de color que corre de lado a lado; brief a la derecha.",
+      "risk": "Muy fuerte para jornadas largas y compite en color con las piezas que tienes que juzgar; vuelve al fondo oscuro.",
+      "wireframe": {
+        "cols": 12, "rows": 10,
+        "regions": [
+          { "label": "riel · bandas flúor", "x": 0, "y": 0, "w": 1, "h": 10, "accent": true },
+          { "label": "pieza", "x": 1, "y": 0, "w": 7, "h": 8 },
+          { "label": "banda de estado", "x": 1, "y": 8, "w": 7, "h": 2, "accent": true },
+          { "label": "brief", "x": 8, "y": 0, "w": 4, "h": 10 }
+        ]
+      }
+    },
+    {
+      "id": "challenger-ticket",
+      "label": "Talonario de viaje",
+      "verdict": "competitive",
+      "lineage": "Billetera de pasajes de aerolínea de los 60",
+      "thesis": "Cada pieza es un talonario: Crear, Editar, Herramientas y Entregar como tramos que se desprenden; los estados se sellan.",
+      "palette": ["#0D1B3D", "#D7262D", "#FFFFFF", "#4B2E83"],
+      "materials": ["cupón troquelado", "numerales en carbónico", "sello ANULADO"],
+      "viewport": "Arriba el cupón de la pieza con sus tramos; al centro la pieza; a la derecha el talón con lo que falta (formato, fondo, entrega).",
+      "case": "Funde muy bien con la cadena completa y con mover piezas entre modos; pierde en identificación: es el mundo de una aerolínea, no el de la academia.",
+      "risk": "Si los sellos se exageran parece un disfraz de pasaje.",
+      "hero": "https://impeccable.style/worlds/cards/vernacular-ephemera-jet-age-ticket-wallet-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/vernacular-ephemera-jet-age-ticket-wallet.webp",
+      "wireframe": {
+        "cols": 12, "rows": 10,
+        "regions": [
+          { "label": "cupón · tramos", "x": 0, "y": 0, "w": 12, "h": 2, "accent": true },
+          { "label": "pieza", "x": 0, "y": 2, "w": 8, "h": 8 },
+          { "label": "talón · lo que falta", "x": 8, "y": 2, "w": 4, "h": 8 }
+        ]
+      }
+    },
+    {
+      "id": "challenger-streaming",
+      "label": "Pared de pósters",
+      "verdict": "competitive",
+      "lineage": "Catálogo de streaming en filas horizontales",
+      "thesis": "La biblioteca y las tandas como filas de pósters: la pieza enfocada crece y muestra prompt y medidas; el resto se atenúa.",
+      "palette": ["#101114", "#1C1E23", "#00B8B0", "#F2F2F2"],
+      "materials": ["póster a sangre", "foco que crece", "fila que se eleva"],
+      "viewport": "Compositor como barra arriba; filas Última tanda, Ediciones, Referencias, Herramientas; al enfocar una pieza se expande con sus acciones.",
+      "case": "Gana en encontrar cosas y en elegir variantes; pierde en el banco de trabajo, donde el brief y las herramientas no son pósters.",
+      "risk": "Fondo oscuro otra vez, y durante una edición la pared distrae.",
+      "hero": "https://impeccable.style/worlds/cards/pop-culture-shelf-streaming-title-card-wall-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/pop-culture-shelf-streaming-title-card-wall.webp",
+      "wireframe": {
+        "cols": 12, "rows": 10,
+        "regions": [
+          { "label": "compositor", "x": 0, "y": 0, "w": 12, "h": 1 },
+          { "label": "fila · última tanda", "x": 0, "y": 1, "w": 12, "h": 3, "accent": true },
+          { "label": "fila · ediciones", "x": 0, "y": 4, "w": 12, "h": 3 },
+          { "label": "fila · referencias", "x": 0, "y": 7, "w": 12, "h": 3 }
+        ]
+      }
+    },
+    {
+      "id": "challenger-ikeda",
+      "label": "Campo de datos",
+      "verdict": "declined",
+      "lineage": "datamatics de Ryoji Ikeda",
+      "thesis": "Columnas de código de barras y retículas en blanco y negro puro.",
+      "palette": ["#000000", "#FFFFFF"],
+      "materials": ["barras de un píxel", "numerales mono"],
+      "viewport": "Un campo de barras con la pieza invertida en negativo.",
+      "case": "Funde mal: blanco y negro puro castiga a quien juzga color todo el día.",
+      "kept": "Compromiso total de paleta: ningún gris arbitrario.",
+      "risk": "Frío y ajeno al mundo de la academia.",
+      "hero": "https://impeccable.style/worlds/cards/ikeda-datamatics-hero.webp"
+    },
+    {
+      "id": "challenger-mono",
+      "label": "Producto monocromo",
+      "verdict": "declined",
+      "lineage": "marketing de software en una escala neutra",
+      "thesis": "Escala neutra, un acento, cada afirmación con su prueba.",
+      "palette": ["#FAFAFA", "#18181B", "#2563EB"],
+      "materials": ["grilla estricta", "botones fantasma"],
+      "viewport": "Afirmación y captura que la prueba, alternadas.",
+      "case": "Funde como el estándar gris de la categoría; no gana en identificación ni en claridad.",
+      "kept": "Cada control muestra su consecuencia al lado.",
+      "risk": "Indistinguible de cualquier SaaS.",
+      "hero": "https://impeccable.style/worlds/cards/digital-design-canon-monochrome-product-marketing-hero.webp"
+    },
+    {
+      "id": "challenger-atlas",
+      "label": "Atlas estelar",
+      "verdict": "declined",
+      "lineage": "cartas celestes",
+      "thesis": "Magnitudes como tamaño de punto sobre una esfera de coordenadas.",
+      "palette": ["#0B1A33", "#F4F1E8", "#C2412D"],
+      "materials": ["tinta sobre azul noche", "anillos de linterna roja"],
+      "viewport": "La biblioteca como un cielo de piezas por tamaño.",
+      "case": "Funde mal: nadie busca un flyer navegando un cielo.",
+      "kept": "La jerarquía la lleva el tamaño, no la tipografía.",
+      "risk": "Bonito y lento para trabajar.",
+      "hero": "https://impeccable.style/worlds/cards/notation-diagram-systems-star-atlas-hero.webp"
+    },
+    {
+      "id": "challenger-botanical",
+      "label": "Folio botánico",
+      "verdict": "declined",
+      "lineage": "láminas de una planta por estaciones",
+      "thesis": "Una misma pieza en sus etapas, a escala fija sobre el mismo fondo.",
+      "palette": ["#F3EBDC", "#3F5D3A", "#B3261E"],
+      "materials": ["láminas grabadas", "reglas sepia"],
+      "viewport": "Las versiones de una pieza en láminas alineadas.",
+      "case": "Funde bien con el linaje de versiones, pero crema y serif es el default de la IA y no es el mundo de la academia.",
+      "kept": "Láminas registradas a la misma escala para comparar versiones.",
+      "risk": "Cae en el look crema-editorial de siempre.",
+      "hero": "https://impeccable.style/worlds/cards/editorial-sequence-montage-botanical-folio-season-hero.webp"
+    }
+  ],
+  "reroll": { "registers": ["safer", "bolder"] },
+  "buildPath": { "value": "code", "toggle": false },
+  "canon": true,
+  "canonCard": {
+    "label": "El estándar de la categoría",
+    "thesis": "Lo que hacen Midjourney, Krea o Firefly, ejecutado impecable.",
+    "palette": ["#0E0F11", "#1A1C20", "#8B5CF6", "#F4F4F5"],
+    "materials": ["galería en mosaico", "barra de prompt fija", "panel de ajustes"],
+    "viewport": "Galería al centro, ajustes a la derecha, barra de prompt abajo.",
+    "risk": "Indistinguible de cualquier generador; es lo que ya tenías en otro color.",
+    "wireframe": {
+      "cols": 12, "rows": 10,
+      "regions": [
+        { "label": "galería", "x": 0, "y": 0, "w": 9, "h": 8 },
+        { "label": "ajustes", "x": 9, "y": 0, "w": 3, "h": 10 },
+        { "label": "barra de prompt", "x": 0, "y": 8, "w": 9, "h": 2, "accent": true }
+      ]
+    }
+  },
+  "steer": true
+}

@@ -1,0 +1,15 @@
+# Secretos
+.env
+
+# Runtime portable de Python (80 MB, copiado de Tapa Studio)
+python/
+
+# Datos locales: generaciones, subidas, miniaturas, gasto, catálogo
+data/
+
+# Se arma solo desde ui.html + app.js
+mart-studio.html
+*.tmp
+
+__pycache__/
+*.pyc
