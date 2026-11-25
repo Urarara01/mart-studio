@@ -592,7 +592,7 @@ def to_trash(paths: list[Path]) -> str:
 
 # ------------------------------------------------------------- peticiones
 SKIP_PARAMS = {"model", "prompt", "input", "image_url", "end_image_url", "input_images", "images", "image",
-               "file", "response_format", "validate", "max_cost", "quote_id", "provider", "models", "metadata"}
+               "file", "validate", "max_cost", "quote_id", "provider", "models", "metadata"}
 
 
 def clean_params(params: dict) -> dict:
