@@ -89,7 +89,7 @@ const HIDDEN_PARAMS = new Set(['model', 'prompt', 'input', 'image_url', 'end_ima
 const LS_KEY = 'mart.v1';
 const saved = (() => { try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}') || {}; } catch { return {}; } })();
 const S = {
-  cfg: null, settings: { max_cost: 1, nsfw: false },
+  cfg: null, settings: { max_cost: 1, nsfw: true },
   cat: null, byId: new Map(), picks: {}, detail: new Map(),
   assets: [], piece: null,
   mode: saved.mode && MODES.includes(saved.mode) ? saved.mode : 'imagen',
@@ -940,6 +940,7 @@ function renderCatalog() {
   const counts = {};
   for (const m of all) counts[m.type] = (counts[m.type] || 0) + 1;
   $('#catFilters').innerHTML = CAT_TYPES.map(([k, l]) => `<button class="filter${S.catF === k ? ' is-on' : ''}" data-catf="${k}">${l} <b>${counts[k] || 0}</b></button>`).join('') +
+    `<button class="filter nsfw-tog${S.settings.nsfw ? ' is-on' : ''}" data-nsfw aria-pressed="${!!S.settings.nsfw}" title="Mostrar u ocultar los modelos para adultos">+18 ${S.settings.nsfw ? 'visibles' : 'ocultos'} <b>${S.cat.models.filter((m) => m.nsfw).length}</b></button>` +
     `<select id="catSort" aria-label="Orden"><option value="price">Más baratos</option><option value="price-desc">Más caros</option><option value="new">Más nuevos</option><option value="name">Nombre</option><option value="pick">Recomendados primero</option></select>`;
   $('#catSort').value = S.catSort;
   const q = S.catQ.trim().toLowerCase();
@@ -1000,6 +1001,19 @@ function useModel(id) {
   setMode(KINDS[kind].mode);
 }
 
+async function setNsfw(on) {
+  try {
+    const r = await api('/api/settings', { nsfw: on });
+    S.settings = r.settings;
+  } catch (e) { toast(e.message, 'bad'); return; }
+  if (!on && S.pickF === 'adult') S.pickF = 'all';
+  if (S.mode === 'modelos') renderCatalog();
+  if (!$('#pickSheet').hidden) renderPicker();
+  if (S.mode === 'gasto') renderUsage();
+  if (curKind()) renderCompose();
+  toast(on ? 'Modelos +18 visibles.' : 'Modelos +18 ocultos.');
+}
+
 /* -------------------------------------------------------- selector modelo */
 function openModelPicker(kind) {
   S.pickKind = kind;
@@ -1015,13 +1029,15 @@ function renderPicker() {
   const f = [['all', 'Todos'], ['pick', 'Recomendados']];
   if (kind === 'video') f.push(['img', 'Acepta imagen'], ['txt', 'Solo texto']);
   if (kind === 'chat') f.push(['vision', 'Con visión'], ['reason', 'Razonan']);
+  if (S.settings.nsfw) f.push(['adult', 'Solo +18']);
   $('#pickFilters').innerHTML = f.map(([k, l]) => `<button class="chip${S.pickF === k ? ' is-on' : ''}" data-pf="${k}">${l}</button>`).join('') +
+    `<button class="chip${S.settings.nsfw ? ' is-on' : ''}" data-nsfw aria-pressed="${!!S.settings.nsfw}">+18 ${S.settings.nsfw ? 'visibles' : 'ocultos'}</button>` +
     `<select id="pickSort" style="width:auto;height:30px;padding:0 28px 0 11px;border-radius:999px;font-size:12.5px;margin-left:auto"><option value="price">Más baratos</option><option value="new">Más nuevos</option><option value="name">Nombre</option></select>`;
   $('#pickSort').value = S.pickSort;
   const q = $('#pickSearch').value.trim().toLowerCase();
   let list = modelsFor(kind).filter((m) => (!q || `${m.name} ${m.id} ${m.owner}`.toLowerCase().includes(q)) && (
     S.pickF === 'all' || (S.pickF === 'pick' && isPick(m.id)) || (S.pickF === 'img' && m.in.includes('image')) || (S.pickF === 'txt' && !m.in.includes('image'))
-    || (S.pickF === 'vision' && m.in.includes('image')) || (S.pickF === 'reason' && m.reasoning)));
+    || (S.pickF === 'vision' && m.in.includes('image')) || (S.pickF === 'reason' && m.reasoning) || (S.pickF === 'adult' && m.nsfw)));
   const sorters = { price: (a, b) => priceOf(a).v - priceOf(b).v, new: (a, b) => (b.created || 0) - (a.created || 0), name: (a, b) => a.name.localeCompare(b.name) };
   list.sort(sorters[S.pickSort]);
   const cur = S.models[kind];
@@ -1156,7 +1172,7 @@ async function renderUsage(fetchFirst) {
     <div class="tile"><h4>Modelos que más gastan</h4><div class="sub">top 8</div><div class="hbars">${hbars(byModel, (k) => modelName(k), 8)}</div></div>
     <div class="tile"><h4>Tope por trabajo</h4><div class="sub">se manda como max_cost; si un trabajo cuesta más, te pide confirmar</div>
       <div class="row" style="margin-top:12px"><input type="number" id="capIn" min="0" step="0.05" value="${S.settings.max_cost ?? ''}" placeholder="sin tope" style="width:120px"><button class="btn sm ink" id="capSave">Guardar</button></div>
-      <label class="chip" style="margin-top:12px"><input type="checkbox" id="nsfwIn" ${S.settings.nsfw ? 'checked' : ''}>Mostrar modelos NSFW</label></div>
+      <label class="chip" style="margin-top:12px"><input type="checkbox" id="nsfwIn" ${S.settings.nsfw ? 'checked' : ''}>Mostrar modelos +18 (NSFW)</label></div>
     <div class="tile wide"><h4>Cómo se cuenta</h4><p class="note" style="margin-top:8px">MartLLM no expone el historial por API, así que esta app <b>anota cada llamada</b> que pasa por ella con el costo exacto que devuelve MartLLM (cabecera <b>X-UberLLM-Cost-USD</b> o <b>usage.cost_usd</b>). Video y música se asientan unos segundos después de terminar. Además guarda una <b>foto del saldo</b> cada vez que cambia: si gastas desde otro lado (Hermes, otra app), aparece como «fuera de la app». Los precios del catálogo se renuevan cada 6 h; el botón de generar siempre cotiza en vivo.</p></div>
     <div class="tile full"><h4>Últimas llamadas</h4><div class="sub">${L.length} en total · exporta todo en CSV</div>
       <table class="ttable"><thead><tr><th>Fecha</th><th>Tipo</th><th>Modelo</th><th>Detalle</th><th class="r">Costo</th></tr></thead><tbody>
@@ -1381,8 +1397,15 @@ function bind() {
   });
 
   // modelos
+  document.addEventListener('click', (e) => { if (e.target.closest('[data-nsfw]')) setNsfw(!S.settings.nsfw); });
   $('#catFilters').addEventListener('click', (e) => { const b = e.target.closest('[data-catf]'); if (b) { S.catF = b.dataset.catf; S.catLimit = 120; renderCatalog(); } });
   $('#catFilters').addEventListener('change', (e) => { if (e.target.id === 'catSort') { S.catSort = e.target.value; renderCatalog(); } });
+  $('#catRefresh').onclick = async () => {
+    const b = $('#catRefresh'); b.disabled = true;
+    try { await loadCatalog(true); renderCatalog(); toast(`Catálogo al día: ${S.cat.models.length} modelos.`); }
+    catch (e) { toast(e.message, 'bad'); }
+    b.disabled = false;
+  };
   $('#catSearch').addEventListener('input', (e) => { S.catQ = e.target.value; S.catLimit = 120; renderCatalog(); });
   $('#catScroll').addEventListener('click', (e) => {
     if (e.target.id === 'catMore') { S.catLimit += 120; renderCatalog(); return; }

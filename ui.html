@@ -331,6 +331,8 @@ details.more .more-body{padding:4px 12px 14px;display:flex;flex-direction:column
 .filter b{font-family:var(--f-mono);font-size:11.5px;font-weight:500;color:var(--dim)}
 .filter.is-on{background:var(--paper);border-color:var(--paper);color:var(--on-ink)}
 .filter.is-on b{color:rgba(11,11,12,.62)}
+.filter.nsfw-tog{border-style:dashed}
+.filter.nsfw-tog.is-on{background:var(--bad);border-color:var(--bad);border-style:solid;color:var(--on-ink)}
 .filters select{width:auto;height:32px;padding:0 28px 0 11px;border-radius:999px;font-size:12.5px;margin-left:auto}
 .page-scroll{flex:1;min-height:0;overflow-y:auto;padding:0 22px 32px}
 .day-h{position:sticky;top:0;z-index:2;display:flex;align-items:baseline;gap:10px;padding:16px 0 10px;background:var(--bg)}
@@ -620,6 +622,7 @@ body.no-side .toasts{right:18px}
     <section class="page" id="models" hidden>
       <div class="page-head">
         <h2>Modelos</h2><span class="tot" id="catTotal"></span>
+        <button class="btn sm" id="catRefresh" title="Volver a bajar el catálogo y los precios de MartLLM"><svg class="i"><use href="#i-redo"/></svg>Actualizar</button>
         <label class="search"><svg class="i"><use href="#i-search"/></svg><input type="search" id="catSearch" placeholder="Buscar modelo, proveedor o id" autocomplete="off" aria-label="Buscar modelos"><kbd>/</kbd></label>
         <div class="filters" id="catFilters"></div>
       </div>

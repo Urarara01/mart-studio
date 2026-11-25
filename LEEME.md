@@ -35,6 +35,7 @@ modelo (resolución, duración, voz, proporción…), así que cualquier modelo 
 
 - **Antes de cobrar** cada trabajo se cotiza con `validate: true` (gratis). El botón muestra
   el precio exacto con esos ajustes y cuánto retiene MartLLM mientras corre.
+- **Modelos +18**: visibles por defecto; el botón «+18» en Modelos (y en el selector de modelo) los oculta o muestra.
 - **Tope por trabajo** (`max_cost`, por defecto $1, se cambia en Gasto): si un trabajo cuesta más,
   la app pide confirmar con un segundo clic.
 - **Registro**: MartLLM no expone historial por API, así que cada llamada que pasa por la app se

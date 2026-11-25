@@ -276,7 +276,7 @@ def ledger_patch(cid: str, **changes) -> None:
 
 
 # -------------------------------------------------------------- ajustes
-DEFAULT_SETTINGS = {"max_cost": 1.0, "nsfw": False}
+DEFAULT_SETTINGS = {"max_cost": 1.0, "nsfw": True}
 
 
 def settings() -> dict:
