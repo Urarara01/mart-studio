@@ -5,16 +5,31 @@ transcripción y chat contra ~830 modelos, con biblioteca local y control de gas
 Hermano de Tapa Studio: mismo diseño (cartel chicha, una tinta por modo), mismo motor
 (Python stdlib + Pillow portables), sin build step.
 
-## Abrir
+## Abrir (portable, Windows)
 
-Doble clic en **`ABRIR-MART-STUDIO.cmd`** → `http://127.0.0.1:8775`
-(si está ocupado prueba 8776, 8777…). Cerrar: cerrar la ventana negra.
+1. Descarga o clona el repo en cualquier carpeta (USB incluido).
+2. Doble clic en **`ABRIR-MART-STUDIO.cmd`**.
+   - La primera vez descarga un Python 3.13 portable + Pillow dentro de `python/` (~30 MB, no toca el sistema).
+   - Si no hay `.env`, lo crea desde `.env.example` y lo abre en el Bloc de notas: pega tu clave en `martllm-key`, guarda y cierra.
+3. Se abre `http://127.0.0.1:8775` (si está ocupado prueba 8776, 8777…). Cerrar: cerrar la ventana negra.
 
-- Credenciales: lee `martllm-key`, `martllm-base-url`, `user` y `pass` de
-  `%USERPROFILE%\Desktop\.env`. Un `.env` junto a `studio.py` gana sobre ese.
-- Con `user`/`pass` escucha en `0.0.0.0` (LAN/Tailscale) detrás de login. Sin ellos, solo local.
-- `MART_HOST=127.0.0.1` lo deja local; `MART_AUTH=off` quita el login; `MART_PORT` cambia el puerto.
-- ffmpeg (opcional, ya está en el PATH): miniaturas de video y ondas de audio.
+Sin Windows: `pip install pillow` y `python studio.py`.
+
+### `.env`
+
+Vive junto a `studio.py` y **no se sube** (está en `.gitignore`):
+
+```ini
+martllm-key = ull_...
+martllm-base-url = https://api.martllm.com/v1
+user =        # opcional: login para abrir desde la LAN / Tailscale
+pass =
+```
+
+- Con `user`/`pass` escucha en `0.0.0.0` detrás de login. Sin ellos, solo en este equipo.
+- Variables opcionales: `MARTLLM_API_KEY` (gana sobre el `.env`), `MART_ENV` (otro archivo .env),
+  `MART_HOST=127.0.0.1`, `MART_AUTH=off`, `MART_PORT`.
+- ffmpeg (opcional, en el PATH o `MART_FFMPEG`): miniaturas de video y ondas de audio.
 
 ## Modos (teclas 1–7)
 
@@ -49,7 +64,7 @@ modelo (resolución, duración, voz, proporción…), así que cualquier modelo 
 
 - `studio.py` — servidor + cliente de MartLLM. `ui.html` + `app.js` → se compilan en `mart-studio.html`.
 - `data/out/` salidas · `data/uploads/` subidas · `data/thumbs/` miniaturas · `data/store.json` biblioteca.
-- `python/` runtime portable (copiado de Tapa Studio). `assets/` fuentes y GSAP.
+- `python/` runtime portable (lo arma `tools/setup-python.ps1`, no va en el repo). `assets/` fuentes y GSAP.
 - `docs/tapa-ref/` la UI y el brief de Tapa Studio usados como referencia de diseño.
 
 ## Notas de la API (verificadas el 2026-11-25)

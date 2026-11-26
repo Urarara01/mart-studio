@@ -56,7 +56,8 @@ for d in (DATA, UP, OUT, TH):
 PORT = int(os.environ.get("MART_PORT", "8775"))
 # 0.0.0.0 = accesible desde la LAN y Tailscale (detrás del login). MART_HOST=127.0.0.1 lo deja local.
 HOST = os.environ.get("MART_HOST", "0.0.0.0")
-ENV_FILE = Path(os.environ.get("MART_ENV", str(Path.home() / "Desktop" / ".env")))
+# Portable: el .env vive junto a studio.py. MART_ENV apunta a otro archivo si hace falta.
+ENV_FILE = Path(os.environ.get("MART_ENV", str(ROOT / ".env")))
 
 
 # ------------------------------------------------------------------ .env
@@ -82,8 +83,7 @@ def _pick(envs: list[dict], *names: str) -> str:
     return ""
 
 
-# el .env de la carpeta gana sobre el del Escritorio
-_ENVS = [read_env(ROOT / ".env"), read_env(ENV_FILE)]
+_ENVS = [read_env(ENV_FILE)]
 API_KEY = os.environ.get("MARTLLM_API_KEY") or _pick(_ENVS, "martllm_api_key", "martllm-key", "martllm_key")
 API_BASE = (os.environ.get("MARTLLM_BASE_URL") or _pick(_ENVS, "martllm_base_url", "martllm-base-url")
             or "https://api.martllm.com/v1").rstrip("/")
